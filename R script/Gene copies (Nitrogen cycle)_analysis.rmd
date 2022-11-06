@@ -1,0 +1,1598 @@
+---
+title: "qPCR.field"
+author: "Numan"
+date: "09/11/2021"
+output:
+  html_document: default
+editor_options: 
+  chunk_output_type: inline
+---
+# R Set up and libraries
+```{r Setup, echo=FALSE, fig.height=5, fig.width=4.5, message=TRUE, warning=TRUE, libraries, include=}
+
+
+knitr::opts_chunk$set(echo = TRUE)
+
+pacman::p_load( ade4, car, data.table, dplyr, dunn.test,  ggExtra, ggfortify, ggplot2, ggpubr,ggraph, ggthemes, Hmisc, knitr, lattice, magrittr, MASS, multcomp, multcompView, otuSummary, plyr, purrr, RColorBrewer, rcompanion, readr, readxl, roperators, stats, stringr, tibble, tidyr, tidyverse, vegan, viridis, tidyverse,ggpubr,
+rstatix)
+
+library(sca)
+getwd()
+
+```
+#qPCR #AOB #metafile #AOA.AOB
+```{r}
+bact.AOB=read.table(file=here("data","AOB.txt"),row.names = 1, header=T, sep="\t")
+
+metafile=read.table(file=here("data","metafile.txt"),row.names=1, header=T, sep="\t", comment.char="")
+
+AOA.AOB=read.table(here("data","AOA.AOB.txt"),row.names=1, header=T, sep="\t", comment.char="")
+
+```
+
+```{r}
+aob.may10=read.table(file=here("data","AOB1.txt"),row.names = 1, header=T, sep="\t")
+aob.may24=read.table(file=here("data","AOB2.txt"),row.names = 1, header=T, sep="\t")
+aob.June7=read.table(file=here("data","AOB3.txt"),row.names = 1, header=T, sep="\t")
+aob.June21=read.table(file=here("data","AOB4.txt"),row.names = 1, header=T, sep="\t")
+aob.July5=read.table(file=here("data","AOB5.txt"),row.names = 1, header=T, sep="\t")
+aob.July19=read.table(file=here("data","AOB6.txt"), header=T, sep="\t")
+aob.Aug1=read.table(file=here("data","AOB7.txt"),row.names = 1, header=T, sep="\t")
+```
+#AOA
+```{r}
+arch.AOA=read.table(file=paste("AOA.field.txt", sep=""),row.names = 1, header=T, sep="\t")
+```
+
+# nirk
+```{r}
+nirk.bact=read.table(file=here("data","nirk.txt"),row.names = 1, header=T, sep="\t")
+```
+
+# nosZ
+```{r}
+bact.nosz=read.table(file=here("data","nosZ.field.txt", sep=""),row.names = 1, header=T, sep="\t")
+```
+
+#16S & ITS gene copies
+```{r}
+F.B.ratio=read.table(file=here("data","F.B ratio.txt"),row.names = 1, header=T, sep="\t")
+```
+# Checking the row.name order
+```{r}
+table(row.names(arch.AOA)==row.names(metafile)) #Sanity check
+table(row.names(bact.AOB)==row.names(metafile)) #Sanity check
+table(row.names(nirk.bact)==row.names(metafile))
+table(row.names(bact.nosz)==row.names(metafile))
+table(row.names(gene.16S)==row.names(metafile))
+table(row.names(AOA.AOB)==row.names(metafile))
+table(row.names(gene.ITS)==row.names(metafile))
+table(row.names(F.B.ratio)==row.names(metafile))
+```
+#Combined dataset
+```{r}
+AOB.treat=cbind(metafile,bact.AOB)
+AOA.treat=cbind(metafile,arch.AOA)
+AOA.treat=na.omit(AOA.treat)
+nirk.treat=cbind(metafile,nirk.bact)
+nosZ.treat=cbind(metafile,bact.nosz)
+nosZ.treat=na.omit(nosZ.treat)
+treat.16S.gene=cbind(metafile, gene.16S)
+treat.ITS.gene=cbind(metafile,gene.ITS)
+treat.F.B.ratio=cbind(metafile, F.B.ratio)
+
+correct.order <- c(  "10_May",  "24_May", "7_June","21_June","5_July","19_July","1_August")
+AOB.treat$date <- factor((AOB.treat)$date, levels = correct.order)
+AOA.treat$date <- factor((AOA.treat)$date, levels = correct.order)
+nirk.treat$date <-factor((nirk.treat)$date, levels = correct.order)
+nosZ.treat$date <-factor((nosZ.treat)$date, levels = correct.order)
+treat.16S.gene$date <-factor((treat.16S.gene)$date, levels = correct.order)
+treat.ITS.gene$date<-factor((treat.ITS.gene)$date, levels = correct.order)
+treat.F.B.ratio$date<-factor((treat.F.B.ratio)$date, levels = correct.order)
+#qpcr.field$date<-factor((qpcr.field)$date, levels = correct.order)
+
+levels(AOA.treat$date) 
+levels(AOB.treat$date) 
+levels(nirk.treat$date)
+levels(nosZ.treat$date)
+levels(treat.16S.gene$date)
+levels(treat.ITS.gene$date)
+levels(treat.F.B.ratio$date)
+levels(qpcr.field$date)
+```
+
+```{r}
+qpcr.field=cbind(metafile,arch.AOA,bact.AOB,nirk.bact, bact.nosz,F.B.ratio)
+qpcr.field=na.omit(qpcr.field)
+
+```
+
+# Three way repeated measure anova
+```{r}
+qpcr.field$month = as.factor(qpcr.field$month)
+qpcr.field$date= as.factor(qpcr.field$date)
+qpcr.field$Treatment= as.factor(qpcr.field$Treatment)
+qpcr.field$Cultivar = as.factor(qpcr.field$Cultivar)
+qpcr.field$block =as.factor(qpcr.field$block)
+qpcr.field$ID=as.factor(qpcr.field$ID)
+
+```
+#BoxPlot
+```{r}
+bxp <- ggboxplot(
+  qpcr.field, x = "Cultivar", y = "AOA",
+  color = "Treatment", palette = "jco",
+  facet.by = "date", short.panel.labs = FALSE
+)+scale_y_log10(breaks = trans_breaks("log10", function(x) 10^x, n=4), labels=trans_format("log10", math_format(10^.x)))
+
+bxp
+```
+```{r}
+bxp.1 <- ggboxplot(
+  qpcr.field, x = "Cultivar", y = "AOB",
+  color = "Treatment", palette = "jco",
+  facet.by = "date", short.panel.labs = FALSE
+)+scale_y_log10(breaks = trans_breaks("log10", function(x) 10^x, n=4), labels=trans_format("log10", math_format(10^.x)))
+
+bxp.1
+
+
+```
+```{R}
+bxp.aoa.aob.ratio <- ggboxplot(
+  qpcr.field, x = "Cultivar", y = "AOA.AOB",
+  color = "Treatment", palette = "jco",
+  facet.by = "date", short.panel.labs = FALSE
+)+scale_y_log10(breaks = trans_breaks("log10", function(x) 10^x, n=4), labels=trans_format("log10", math_format(10^.x)))
+
+bxp.aoa.aob.ratio
+```
+
+```{r}
+
+bxp.2 <- ggboxplot(
+  qpcr.field, x = "Cultivar", y = "nirk",
+  color = "Treatment", palette = "jco",
+  facet.by = "date", short.panel.labs = FALSE
+)+scale_y_log10(breaks = trans_breaks("log10", function(x) 10^x, n=4), labels=trans_format("log10", math_format(10^.x)))
+
+bxp.2
+
+```
+
+```{r}
+bxp.3 <- ggboxplot(
+  qpcr.field, x = "Cultivar", y = "nosZ",
+  color = "Treatment", palette = "jco",
+  facet.by = "date", short.panel.labs = FALSE
+)+scale_y_log10(breaks = trans_breaks("log10", function(x) 10^x, n=4), labels=trans_format("log10", math_format(10^.x)))
+
+bxp.3
+
+```
+#Boxplot for F.B ratio
+```{r}
+bxp.4 <- ggboxplot(
+  qpcr.field, x = "Cultivar", y = "F.B.ratio",
+  color = "Treatment", palette = "jco",
+  facet.by = "date", short.panel.labs = FALSE
+)+scale_y_log10(breaks = trans_breaks("log10", function(x) 10^x, n=4), labels=trans_format("log10", math_format(10^.x)))
+
+bxp.4
+
+
+
+```
+#Check for normality
+```{r}
+shapiro.test(AOB.treat$AOB)
+summary(aov(AOB~Cultivar*Treatment*date*block,  data=AOB.treat))
+
+shapiro.test(qpcr.field$AOA.AOB)
+summary(aov(AOA.AOB~Cultivar*Treatment*date*block,  data=qpcr.field))
+```
+#Check for normality by group-wise
+```{r}
+#AOA
+options(dplyr.print_max = 100)
+qpcr.field %>% 
+group_by(date,block,month) %>%
+shapiro_test(AOA) 
+#AOB
+options(dplyr.print_max = 100)
+qpcr.field %>% 
+group_by(date,block,month) %>%
+shapiro_test(AOB) 
+#nirK
+options(dplyr.print_max = 100)
+qpcr.field %>% 
+group_by(date,block,month) %>%
+shapiro_test(nirk) 
+#nosZ
+options(dplyr.print_max = 100)
+qpcr.field %>% 
+group_by(date,block,month) %>%
+shapiro_test(nosZ) 
+```
+AOA.AOB
+```{r}
+#AOA.AOB
+options(dplyr.print_max = 100)
+qpcr.field %>% 
+group_by(date,block,month) %>%
+shapiro_test(AOA.AOB) 
+```
+
+```{R}
+#F.B ratio
+
+options(dplyr.print_max = 100)
+qpcr.field %>% 
+group_by(date,block,month) %>%
+shapiro_test(F.B.ratio) 
+```
+#Transformation of data
+
+```{R}
+qpcr.field$AOA =log10(qpcr.field$AOA)
+qpcr.field$AOB =log10(qpcr.field$AOB)
+qpcr.field$nirk=log10(qpcr.field$nirk)
+qpcr.field$nosZ=log10(qpcr.field$nosZ)
+#qpcr.field$AOA.AOB=log(qpcr.field$AOA.AOB)
+qpcr.field$F.B.ratio=log(qpcr.field$F.B.ratio)
+```
+#Checking Out-lier
+```{R}
+identify_outliers(AOA, data=qpcr.field)
+identify_outliers(AOB, data=qpcr.field)
+identify_outliers(nirk, data=qpcr.field)
+identify_outliers(nosZ, data=qpcr.field)
+#identify_outliers(AOA.AOB, data=qpcr.field)
+
+identify_outliers(F.B.ratio, data=qpcr.field)
+
+```
+#Normality check with lm model
+
+```{R}
+
+ggqqplot( qpcr.field ,"AOA", ggtheme = theme_bw()) +
+  facet_grid(date + month ~ block, labeller = "label_both")
+```
+
+```{R}
+ggqqplot( qpcr.field ,"AOA.AOB", ggtheme = theme_bw()) +
+  facet_grid(date + month ~ block, labeller = "label_both")
+```
+
+```{R}
+ggqqplot( qpcr.field ,"F.B.ratio", ggtheme = theme_bw()) +
+  facet_grid(date + month ~ block, labeller = "label_both")
+
+```
+#Sphericity
+```{r}
+sphere = data.frame("date" = (qpcr.field$date),
+                     "AOB" = (qpcr.field$AOB),
+                     "sample" = (qpcr.field$ID))
+sphere=na.omit(sphere)
+
+res=anova_test(data = sphere, dv = AOB, wid =sample, between  = date)
+res
+
+sphere = data.frame("date" = (qpcr.field$date),
+                     "AOA" = (qpcr.field$AOA),
+                     "sample" = (qpcr.field$ID))
+sphere=na.omit(sphere)
+
+res=anova_test(data = sphere, dv = AOA, wid =sample, between  = date)
+res
+
+sphere = data.frame("date" = (qpcr.field$date),
+                     "nirk" = (qpcr.field$nirk),
+                     "sample" = (qpcr.field$ID))
+sphere=na.omit(sphere)
+
+res=anova_test(data = sphere, dv = nirk, wid =sample, between  = date)
+res
+
+sphere = data.frame("date" = (qpcr.field$date),
+                     "nosZ" = (qpcr.field$nosZ),
+                     "sample" = (qpcr.field$ID))
+sphere=na.omit(sphere)
+
+res=anova_test(data = sphere, dv = nosZ, wid =sample, between = date)
+res
+
+```
+#Spherecity AOA ratio
+```{R}
+
+sphere.aoa.ratio = data.frame("date" = (qpcr.field$date),
+                     "AOA.AOB" = (qpcr.field$AOA.AOB),
+                     "sample" = (qpcr.field$ID))
+sphere.aoa.ratio=na.omit(sphere.aoa.ratio)
+
+res=anova_test(data = sphere.aoa.ratio, dv = AOA.AOB, wid =sample, between = date)
+res
+
+```
+#Sphericity F.B ratio
+```{r}
+sphere.fb.ratio = data.frame("date" = (qpcr.field$date),
+                     "F.B.ratio" = (qpcr.field$F.B.ratio),
+                     "sample" = (qpcr.field$ID))
+sphere.fb.ratio=na.omit(sphere.fb.ratio)
+
+res=anova_test(data = sphere.fb.ratio, dv = F.B.ratio, wid =sample, between = date)
+res
+
+
+```
+
+#Three way repeated measured ANOVA
+```{r}
+anova.AOA=aov(AOA ~ Treatment*date*Cultivar+block + Error(ID),
+             data=qpcr.field)
+
+summary(anova.AOA)
+
+anova.AOB=aov(AOB ~ Treatment*date*Cultivar+block + Error(ID),
+             data=qpcr.field)
+
+summary(anova.AOB)
+
+anova.nirk=aov(nirk ~ Treatment*date*Cultivar+block + Error(ID),
+             data=qpcr.field)
+
+summary(anova.nirk)
+
+anova.nosZ=aov(nosZ ~ Treatment*date*Cultivar+block + Error(ID),
+             data=qpcr.field)
+
+summary(anova.nosZ)
+```
+#rmANOVA for AOA ratio
+```{R}
+
+anova.aoa.ratio=aov(AOA.AOB ~ Treatment*date*Cultivar+block + Error(ID),
+             data=qpcr.field)
+
+summary(anova.aoa.ratio)
+
+```
+#rmANOVA F.B ratio
+```{r}
+anova.FB.ratio=aov(F.B.ratio ~ Treatment*date*Cultivar+block + Error(ID),
+             data=qpcr.field)
+
+summary(anova.FB.ratio)
+
+```
+## Post-hoc test
+### Difference between each time point group by treatment
+```{r}
+options(dplyr.print_max = 200)
+pwc <- qpcr.field %>%
+  group_by(Cultivar) %>%
+  pairwise_t_test(AOA ~ Treatment, paired = TRUE, p.adjust.method = "bonferroni")  
+
+pwc
+
+options(dplyr.print_max = 200)
+pwc <- qpcr.field %>%
+  group_by(Cultivar) %>%
+  pairwise_t_test(nirk ~ Treatment, paired = TRUE, p.adjust.method = "bonferroni")  
+
+pwc
+
+```
+### Difference between each treatment group by time point
+```{r}
+options(dplyr.print_max = 200)
+pwc1 <- qpcr.field %>%
+  group_by(date) %>%
+  pairwise_t_test(AOA ~ Treatment, paired = TRUE, p.adjust.method = "bonferroni")  
+pwc1
+
+options(dplyr.print_max = 200)
+pwc1 <- qpcr.field %>%
+  group_by(date) %>%
+  pairwise_t_test(nosZ ~ Treatment, paired = TRUE, p.adjust.method = "bonferroni")  
+pwc1
+
+```
+#Statistical analysis
+```{r}
+set.seed(1234)
+AOB.treat %>% sample_n_by(Cultivar, size = 48)
+
+AOB.treat <- AOB.treat%>%
+reorder_levels(Cultivar, order = c("1", "2", "3", "4","5","6"))
+
+AOB.treat %>%
+  group_by(Cultivar) %>%
+  get_summary_stats(Treatment, type = "mean_sd")
+```
+
+#Check for the normality
+```{r}
+shapiro.test(AOA.treat$AOA)
+
+summary(aov(AOA~Cultivar*Treatment*date*block,  data=AOA.treat))
+```
+#Check for the normality
+```{r}
+shapiro.test(nirk.treat$nirk)
+summary(aov(nirk~Cultivar*Treatment*date*block,  data=nirk.treat))
+```
+#Check for the normality
+```{r}
+shapiro.test(nosZ.treat$nosZ)
+summary(aov(nosZ~Cultivar*Treatment*date*block,  data=nosZ.treat))
+
+```
+#check for normality
+
+```{r}
+shapiro.test(qpcr.field$F.B.ratio)
+summary(aov(F.B.ratio~Cultivar*Treatment*date*block,  data=qpcr.field))
+
+```
+
+#Check for the mormality
+```{r}
+
+aob.treat.aug1=cbind(aob.Aug1,aob.exp7)
+aob.treat.may10=cbind(aob.exp1,aob.may10)
+shapiro.test(aob.Aug1$AOB)
+shapiro.test(aob.may10$AOB)
+```
+
+#split the experiment
+```{r}
+aob.exp1=AOB.treat[AOB.treat$date==10,]
+aob.exp2=AOB.treat[AOB.treat$date==24,]
+aob.exp3=AOB.treat[AOB.treat$date==7,]
+aob.exp4=AOB.treat[AOB.treat$date==21,]
+aob.exp5=AOB.treat[AOB.treat$date==5,]
+aob.exp6=AOB.treat[AOB.treat$date==19,]
+aob.exp7=AOB.treat[AOB.treat$date==1,]
+```
+
+Data visualization (gene copies per sampling date)
+```{r}
+library(ggplot2)
+library(RColorBrewer)
+require(scales)
+require(gridExtra)
+```
+#AOB Boxplot
+```{r}
+palette(brewer.pal(n=9, name="Set1"))
+#amoA Archaea
+qpcr.box.exp.AOB=ggplot(AOB.treat, aes(x=date, y=AOB, colour=factor(Cultivar), fill=factor(Treatment)))+ 
+  ggtitle("B.Ammonia monooxygenase gene abundance (Bacteria)")+
+  scale_x_discrete(name="date")+
+  ylab("Bacterial amoA abundance (copies/g soil)")+
+  geom_boxplot()+ #Boxplot
+  geom_point(position=position_jitterdodge())+ #add points, and position not overlapping
+  theme_bw()+
+  scale_fill_manual(values=c("grey", "white", "lightgreen", "skyblue","black","red","yellow"),  name="Treatment%")+
+  scale_y_log10(breaks = trans_breaks("log10", function(x) 10^x, n=4), labels=trans_format("log10", math_format(10^.x)))+
+  scale_colour_manual(values=palette(),name="Variety")
+qpcr.box.exp.AOB
+
+
+ggsave(file=here("output/photo","qpcr.box.exp.AOB.1.tiff"), qpcr.box.exp.AOB, height = 3.5, width = 7, units = "in", dpi=600, compression="lzw")
+```
+#nirk BoxplotAOA
+```{r}
+palette(brewer.pal(n=9, name="Set1"))
+
+qpcr.box.exp.AOA=ggplot(AOA.treat, aes(x=date, y=AOA, colour=factor(Cultivar), fill=factor(Treatment)))+ 
+  ggtitle("A.Ammonia monooxygenase gene abundance (Archaea)")+
+  scale_x_discrete(name="Date")+
+  ylab("Archaeal AOA abundance (copies/g soil)")+
+  geom_boxplot()+ #Boxplot
+  geom_point(position=position_jitterdodge())+ #add points, and position not overlapping
+  theme_bw()+
+  scale_fill_manual(values=c("grey", "white", "lightgreen", "skyblue","black","red","yellow"),  name="Treatment%")+
+  scale_y_log10(breaks = trans_breaks("log10", function(x) 10^x, n=3), labels=trans_format("log10", math_format(10^.x)))+
+  scale_colour_manual(values=palette(),name="Variety")
+qpcr.box.exp.AOA
+
+
+ggsave(file=here("output/photo","qpcr.box.exp.AOA.1.tiff"), qpcr.box.exp.AOA, height = 3.5, width = 7, units = "in", dpi=600, compression="lzw")
+```
+#nirk Boxplot
+```{r}
+palette(brewer.pal(n=9, name="Set1"))
+qpcr.box.exp.nirk=ggplot(nirk.treat, aes(x=date, y=nirk, colour=factor(Cultivar), fill=factor(Treatment)))+ 
+  ggtitle("C.Copper-containing nitrite reductase gene abundance")+
+  scale_x_discrete(name="Date")+
+  ylab("Bacterial nirK abundance (copies/g soil)")+
+  geom_boxplot()+ #Boxplot
+  geom_point(position=position_jitterdodge())+ #add points, and position not overlapping
+  theme_bw()+
+  scale_fill_manual(values=c("grey", "white", "lightgreen", "skyblue","black","red","yellow"),  name="Treatment%")+
+  scale_y_log10(breaks = trans_breaks("log10", function(x) 10^x, n=4), labels=trans_format("log10", math_format(10^.x)))+
+  scale_colour_manual(values=palette(),name="Variety")
+qpcr.box.exp.nirk
+
+ggsave(file=here("output/photo","qpcr.box.exp.nirk.tiff"), qpcr.box.exp.nirk, height = 3.5, width = 7, units = "in", dpi=600, compression="lzw")
+```
+
+#nosZ Box plot
+```{r}
+palette(brewer.pal(n=9, name="Set1"))
+qpcr.box.exp.nosz=ggplot(nosZ.treat, aes(x=date, y=nosZ, colour=factor(Cultivar), fill=factor(Treatment)))+ 
+  ggtitle("D.Nitrous oxide reductase gene abundance.")+
+  scale_x_discrete(name="Date")+
+  ylab("Bacterial nosZ abundance (copies/g soil)")+
+  geom_boxplot()+ #Boxplot
+  geom_point(position=position_jitterdodge())+ #add points, and position not overlapping
+  theme_bw()+
+  scale_fill_manual(values=c("grey", "white", "lightgreen", "skyblue"),  name="Treatment%")+
+  scale_y_log10(breaks = trans_breaks("log10", function(x) 10^x, n=4), labels=trans_format("log10", math_format(10^.x)))+
+  scale_colour_manual(values=palette(),name="Variety")
+qpcr.box.exp.nosz
+
+ggsave(file=here("output/photo","qpcr.box.exp.nosZ.tiff"), qpcr.box.exp.nosz, height = 3.5, width = 7, units = "in", dpi=600, compression="lzw")
+
+```
+
+#Ratio of ITS:16S gene copies
+```{r}
+
+palette(brewer.pal(n=9, name="Set1"))
+
+qpcr.box.FB.ratio=ggplot(qpcr.field, aes(x=date, y=F.B.ratio, colour=factor(Cultivar),   fill=factor(Treatment)))+ 
+  ggtitle(" Fungi:Bacteria in the experimental field.")+
+  scale_x_discrete(name="Date")+
+  ylab("ITS:16S gene abundunce (copies/g soil)")+
+  geom_boxplot()+ #Boxplot
+  geom_point(position=position_jitterdodge())+ #add points, and position not overlapping
+  theme_bw()+
+  scale_fill_manual(values=c("grey", "white", "lightgreen", "skyblue","black","red","yellow"),  name="Treatment%")+
+  #scale_y_log10(breaks = trans_breaks("log10", function(x) 10^x, n=4), #labels=trans_format("log10", math_format(10^.x)))+
+  scale_colour_manual(values=palette(),name="Variety")
+
+qpcr.box.FB.ratio
+
+
+ggsave(file=here("output/photo","qpcr.box.exp.F.B.ratio.tiff"), qpcr.box.FB.ratio, height = 3.5, width = 7, units = "in", dpi=600, compression="lzw")
+
+```
+
+
+#AOA vs quality
+```{r}
+quality.field=read.table(file=paste("quality.field.txt", sep=""), header=T, sep="\t")
+
+
+i=1
+unlink ("cor1-AOA-qual.Spearman.txt")
+while (i<=8)
+{cor=cor.test(quality.field[,i],log(aoa.may10[,1]), method="spearman");
+p.value=cor$p.value; if(is.na(p.value)){p.value=1}; if(p.value<1)
+cat (colnames(quality.field)[i], "\t","AOA", "\t", cor$p.value, "\t", cor$estimate,  "\n", file=here("output/tables","cor1-AOA.qual.spearman.txt"), append=T);i=i+1}
+
+
+
+i=1
+unlink ("cor2-AOA-qual.Spearman.txt")
+while (i<=8)
+{cor=cor.test(quality.field[,i],log(aoa.may24[,1]), method="spearman");
+p.value=cor$p.value; if(is.na(p.value)){p.value=0.01}; if(p.value<1)
+cat (colnames(quality.field)[i], "\t","AOA", "\t", cor$p.value, "\t", cor$estimate,  "\n", file=here("output/tables","cor2-AOA.qual.spearman.txt"), append=T);i=i+1}
+
+
+
+i=1
+unlink ("cor3-AOA-qual.Spearman.txt")
+while (i<=8)
+{cor=cor.test(quality.field[,i],log(aoa.june7[,1]), method="spearman");
+p.value=cor$p.value; if(is.na(p.value)){p.value=1}; if(p.value<1)
+cat (colnames(quality.field)[i], "\t","AOA", "\t", cor$p.value, "\t", cor$estimate,  "\n", file=here("output/tables","cor3-AOA.qual.spearman.txt"), append=T);i=i+1}
+
+
+
+
+i=1
+unlink ("cor4-AOA-qual.Spearman.txt")
+while (i<=8)
+{cor=cor.test(quality.field[,i],log(aoa.june21[,1]), method="spearman");
+p.value=cor$p.value; if(is.na(p.value)){p.value=1}; if(p.value<1)
+cat (colnames(quality.field)[i], "\t","AOA", "\t", cor$p.value, "\t", cor$estimate,  "\n", file=here("output/tables","cor4-AOA.qual.spearman.txt"), append=T);i=i+1}
+
+
+
+
+i=1
+unlink ("cor5-AOA-qual.Spearman.txt")
+while (i<=8)
+{cor=cor.test(quality.field[,i],log(aoa.july5[,1]), method="spearman");
+p.value=cor$p.value; if(is.na(p.value)){p.value=1}; if(p.value<1)
+cat (colnames(quality.field)[i], "\t","AOA", "\t", cor$p.value, "\t", cor$estimate,  "\n", file=here("output/tables","cor5-AOA.qual.spearman.txt"), append=T);i=i+1}
+
+
+
+
+i=1
+unlink ("cor6-AOA-qual.Spearman.txt")
+while (i<=8)
+{cor=cor.test(quality.field[,i],log(aoa.july19[,1]), method="spearman");
+p.value=cor$p.value; if(is.na(p.value)){p.value=1}; if(p.value<1)
+cat (colnames(quality.field)[i], "\t","AOA", "\t", cor$p.value, "\t", cor$estimate,  "\n", file=here("output/tables","cor6-AOA.qual.spearman.txt"), append=T);i=i+1}
+
+
+
+i=1
+unlink ("cor7-AOA-qual.Spearman.txt")
+while (i<=8)
+{cor=cor.test(quality.field[,i],log(aoa.aug1[,1]), method="spearman");
+p.value=cor$p.value; if(is.na(p.value)){p.value=1}; if(p.value<1)
+cat (colnames(quality.field)[i], "\t","AOA", "\t", cor$p.value, "\t", cor$estimate,  "\n", file=here("output/tables","cor7-AOA.qual.spearman.txt"), append=T);i=i+1}
+
+```
+
+# aob vs quality
+```{r}
+i=1
+unlink ("cor1-AOB-Spearman.txt")
+while (i<=8)
+{cor=cor.test(quality.field[,i],log(aob.may10[,1]), method="spearman");
+p.value=cor$p.value; if(is.na(p.value)){p.value=1}; if(p.value<1)
+cat (colnames(quality.field)[i], "\t","AOB", "\t", cor$p.value, "\t", cor$estimate,  "\n", file=here("output/tables","cor1-AOB.spearman.txt"), append=T);i=i+1}
+
+
+
+i=1
+unlink ("cor2-AOB-Spearman.txt")
+while (i<=8)
+{cor=cor.test(quality.field[,i],log(aob.may24[,1]), method="spearman");
+p.value=cor$p.value; if(is.na(p.value)){p.value=1}; if(p.value<1)
+cat (colnames(quality.field)[i], "\t","AOB", "\t", cor$p.value, "\t", cor$estimate,  "\n", file=here("output/tables","cor2-AOB.spearman.txt"), append=T);i=i+1}
+
+
+
+i=1
+unlink ("cor3-AOB-Spearman.txt")
+while (i<=8)
+{cor=cor.test(quality.field[,i],log(aob.June7[,1]), method="spearman");
+p.value=cor$p.value; if(is.na(p.value)){p.value=1}; if(p.value<1)
+cat (colnames(quality.field)[i], "\t","AOB", "\t", cor$p.value, "\t", cor$estimate,  "\n", file=here("output/tables","cor3-AOB.spearman.txt"), append=T);i=i+1}
+
+
+
+i=1
+unlink ("cor5-AOB-Spearman.txt")
+while (i<=8)
+{cor=cor.test(quality.field[,i],log(aob.July5[,1]), method="spearman");
+p.value=cor$p.value; if(is.na(p.value)){p.value=1}; if(p.value<1)
+cat (colnames(quality.field)[i], "\t","AOB", "\t", cor$p.value, "\t", cor$estimate,  "\n", file=here("output/tables","cor5-AOB.spearman.txt"), append=T);i=i+1}
+
+
+
+i=1
+unlink ("cor6-AOB-Spearman.txt")
+while (i<=8)
+{cor=cor.test(quality.field[,i],log(aob.July19[,1]), method="spearman");
+p.value=cor$p.value; if(is.na(p.value)){p.value=1}; if(p.value<1)
+cat (colnames(quality.field)[i], "\t","AOB", "\t", cor$p.value, "\t", cor$estimate,  "\n", file=here("output/tables","cor6-AOB.spearman.txt"), append=T);i=i+1}
+
+
+
+i=1
+unlink ("cor7-AOB-Spearman.txt")
+while (i<=8)
+{cor=cor.test(quality.field[,i],log(aob.Aug1[,1]), method="spearman");
+p.value=cor$p.value; if(is.na(p.value)){p.value=1}; if(p.value<1)
+cat (colnames(quality.field)[i], "\t","AOB", "\t", cor$p.value, "\t", cor$estimate,  "\n", file=here("output/tables","cor7-AOB.spearman.txt"), append=T);i=i+1}
+```
+#nirK VS QUAL
+```{r}
+i=1
+unlink ("cor1-nirk-Spearman.txt")
+while (i<=8)
+{cor=cor.test(quality.field[,i],log(nirk.may10[,1]), method="spearman");
+p.value=cor$p.value; if(is.na(p.value)){p.value=1}; if(p.value<1)
+cat (colnames(quality.field)[i], "\t","nirk", "\t", cor$p.value, "\t", cor$estimate,  "\n", file=here("output/tables","cor1-nirk.spearman.txt"), append=T);i=i+1}
+```
+
+```{r}
+
+
+i=1
+unlink ("cor2-nirk-Spearman.txt")
+while (i<=8)
+{cor=cor.test(quality.field[,i],log(nirk.may24[,1]), method="spearman");
+p.value=cor$p.value; if(is.na(p.value)){p.value=1}; if(p.value<1)
+cat (colnames(quality.field)[i], "\t","nirk", "\t", cor$p.value, "\t", cor$estimate,  "\n", file=here("output/tables","cor2-nirk.spearman.txt"), append=T);i=i+1}
+
+
+i=1
+unlink ("cor3-nirk-Spearman.txt")
+while (i<=8)
+{cor=cor.test(quality.field[,i],log(nirk.june7[,1]), method="spearman");
+p.value=cor$p.value; if(is.na(p.value)){p.value=1}; if(p.value<1)
+cat (colnames(quality.field)[i], "\t","nirk", "\t", cor$p.value, "\t", cor$estimate,  "\n", file=here("output/tables","cor3-nirk.spearman.txt"), append=T);i=i+1}
+
+i=1
+unlink ("cor4-nirk-Spearman.txt")
+while (i<=8)
+{cor=cor.test(quality.field[,i],log(nirk.june21[,1]), method="spearman");
+p.value=cor$p.value; if(is.na(p.value)){p.value=1}; if(p.value<1)
+cat (colnames(quality.field)[i], "\t","nirk", "\t", cor$p.value, "\t", cor$estimate,  "\n", file=here("output/tables","cor4-nirk.spearman.txt"), append=T);i=i+1}
+
+i=1
+unlink ("cor5-nirk-Spearman.txt")
+while (i<=8)
+{cor=cor.test(quality.field[,i],log(nirk.july5[,1]), method="spearman");
+p.value=cor$p.value; if(is.na(p.value)){p.value=1}; if(p.value<1)
+cat (colnames(quality.field)[i], "\t","nirk", "\t", cor$p.value, "\t", cor$estimate,  "\n", file=here("output/tables","cor5-nirk.spearman.txt"), append=T);i=i+1}
+
+i=1
+unlink ("cor6-nirk-Spearman.txt")
+while (i<=8)
+{cor=cor.test(quality.field[,i],log(nirk.july19[,1]), method="spearman");
+p.value=cor$p.value; if(is.na(p.value)){p.value=1}; if(p.value<1)
+cat (colnames(quality.field)[i], "\t","nirk", "\t", cor$p.value, "\t", cor$estimate,  "\n", file=here("output/tables","cor6-nirk.spearman.txt"), append=T);i=i+1}
+
+i=1
+unlink ("cor7-nirk-Spearman.txt")
+while (i<=8)
+{cor=cor.test(quality.field[,i],log(nirk.aug1[,1]), method="spearman");
+p.value=cor$p.value; if(is.na(p.value)){p.value=1}; if(p.value<1)
+cat (colnames(quality.field)[i], "\t","nirk", "\t", cor$p.value, "\t", cor$estimate,  "\n", file=here("output/tables","cor7-nirk.spearman.txt"), append=T);i=i+1}
+```
+#nosZ VS Quality
+```{r}
+i=1
+unlink ("cor1-nosZ-Spearman.txt")
+while (i<=8)
+{cor=cor.test(quality.field[,i],log(nosZ.may10[,1]), method="spearman");
+p.value=cor$p.value; if(is.na(p.value)){p.value=1}; if(p.value<1)
+  cat (colnames(quality.field)[i], "\t","nosZ", "\t", cor$p.value, "\t", cor$estimate,  "\n", file=here("output/tables","cor1-nosZ.spearman.txt"), append=T);i=i+1}
+
+
+i=1
+unlink ("cor2-nosZ-Spearman.txt")
+while (i<=8)
+{cor=cor.test(quality.field[,i],log(nosZ.may24[,1]), method="spearman");
+p.value=cor$p.value; if(is.na(p.value)){p.value=1}; if(p.value<1)
+  cat (colnames(quality.field)[i], "\t","nosZ", "\t", cor$p.value, "\t", cor$estimate,  "\n", file=here("output/tables","cor2-nosZ.spearman.txt"), append=T);i=i+1}
+
+
+
+i=1
+unlink ("cor3-nosZ-Spearman.txt")
+while (i<=8)
+{cor=cor.test(quality.field[,i],log(nosZ.june7[,1]), method="spearman");
+p.value=cor$p.value; if(is.na(p.value)){p.value=1}; if(p.value<1)
+  cat (colnames(quality.field)[i], "\t","nosZ", "\t", cor$p.value, "\t", cor$estimate,  "\n", file=here("output/tables","cor3-nosz.spearman.txt"), append=T);i=i+1}
+
+i=1
+unlink ("cor4-nosZ-Spearman.txt")
+while (i<=8)
+{cor=cor.test(quality.field[,i],log(nosZ.june21[,1]), method="spearman");
+p.value=cor$p.value; if(is.na(p.value)){p.value=1}; if(p.value<1)
+  cat (colnames(quality.field)[i], "\t","nosZ", "\t", cor$p.value, "\t", cor$estimate,  "\n", file=here("output/tables","cor4-nosZ.spearman.txt"), append=T);i=i+1}
+
+i=1
+unlink ("cor5-nosZ-Spearman.txt")
+while (i<=8)
+{cor=cor.test(quality.field[,i],log(nosZ.july5[,1]), method="spearman");
+p.value=cor$p.value; if(is.na(p.value)){p.value=1}; if(p.value<1)
+  cat (colnames(quality.field)[i], "\t","nosZ", "\t", cor$p.value, "\t", cor$estimate,  "\n", file="cor5-nosZ.spearman.txt", append=T);i=i+1}
+
+i=1
+unlink ("cor6-nosZ-Spearman.txt")
+while (i<=8)
+{cor=cor.test(quality.field[,i],log(nosZ.july19[,1]), method="spearman");
+p.value=cor$p.value; if(is.na(p.value)){p.value=1}; if(p.value<1)
+  cat (colnames(quality.field)[i], "\t","nosZ", "\t", cor$p.value, "\t", cor$estimate,  "\n", file=here("output/tables","cor6-nosZ.spearman.txt"), append=T);i=i+1}
+
+i=1
+unlink ("cor7-nosZ-Spearman.txt")
+while (i<=8)
+{cor=cor.test(quality.field[,i],log(nosZ.aug1[,1]), method="spearman");
+p.value=cor$p.value; if(is.na(p.value)){p.value=1}; if(p.value<1)
+  cat (colnames(quality.field)[i], "\t","nosZ", "\t", cor$p.value, "\t", cor$estimate,  "\n", file=here("output/tables","cor7-nosZ.spearman.txt"), append=T);i=i+1}
+
+```
+#Subsetting qPCR data according to Cultivar
+```{r}
+strongfield.qPCR = qpcr.field[which(qpcr.field$Cultivar=="Strongfield"),]
+
+AC.Nass.qPCR=qpcr.field[which(qpcr.field$Cultivar=="AC Nass"),]
+
+```
+#Splitting the dataset accroding to different genes
+```{r}
+AOA.S.field= strongfield.qPCR[,which(names(strongfield.qPCR) %in% c("ID", "month", "date","Treatment","block","Cultivar","AOA"))]
+
+AOB.S.field= strongfield.qPCR[,which(names(strongfield.qPCR) %in% c("ID", "month", "date","Treatment","block","Cultivar","AOB"))]
+
+nirK.S.field=strongfield.qPCR[,which(names(strongfield.qPCR) %in% c("ID", "month", "date","Treatment","block","Cultivar","nirk"))]
+
+nosZ.S.field=strongfield.qPCR[,which(names(strongfield.qPCR) %in% c("ID", "month", "date","Treatment","block","Cultivar","nosZ"))]
+
+FB.S.field=strongfield.qPCR[,which(names(strongfield.qPCR) %in% c("ID", "month", "date","Treatment","block","Cultivar","F.B.ratio"))]
+
+
+```
+
+
+```{r}
+AOA.AC.Nass=AC.Nass.qPCR[,which(names(AC.Nass.qPCR) %in% c("ID", "month", "date","Treatment","block","Cultivar","AOA"))]
+
+AOB.AC.Nass=AC.Nass.qPCR[,which(names(AC.Nass.qPCR) %in% c("ID", "month", "date","Treatment","block","Cultivar","AOB"))]
+
+nirk.AC.Nass=AC.Nass.qPCR[,which(names(AC.Nass.qPCR) %in% c("ID", "month", "date","Treatment","block","Cultivar","nirk"))]
+
+nosZ.AC.Nass=AC.Nass.qPCR[,which(names(AC.Nass.qPCR) %in% c("ID", "month", "date","Treatment","block","Cultivar","nosZ"))]
+
+FB.AC.Nass=AC.Nass.qPCR[,which(names(AC.Nass.qPCR) %in% c("ID", "month", "date","Treatment","block","Cultivar","F.B.ratio"))]
+
+```
+#Subsetting accordding to different time point (Strongfield)
+```{r}
+AOB.T1.DT=AOB.S.field[AOB.S.field$date=="10_May",]
+AOB.T2.DT=AOB.S.field[AOB.S.field$date=="24_May",]
+AOB.T3.DT=AOB.S.field[AOB.S.field$date=="7_June",]
+AOB.T4.DT=AOB.S.field[AOB.S.field$date=="21_June",]
+AOB.T5.DT=AOB.S.field[AOB.S.field$date=="5_July",]
+AOB.T6.DT=AOB.S.field[AOB.S.field$date=="19_July",]
+AOB.T7.DT=AOB.S.field[AOB.S.field$date=="1_August",]
+
+AOB.DT1= data.frame(AOB.T1.DT$AOB)
+AOB.DT2= data.frame(AOB.T2.DT$AOB)
+AOB.DT3= data.frame(AOB.T3.DT$AOB)
+AOB.DT4= data.frame(AOB.T4.DT$AOB)
+AOB.DT5= data.frame(AOB.T5.DT$AOB)
+AOB.DT6= data.frame(AOB.T6.DT$AOB)
+AOB.DT7= data.frame(AOB.T7.DT$AOB)
+
+AOA.T1.DT=AOA.S.field[AOA.S.field$date=="10_May",]
+AOA.T2.DT=AOA.S.field[AOA.S.field$date=="24_May",]
+AOA.T3.DT=AOA.S.field[AOA.S.field$date=="7_June",]
+AOA.T4.DT=AOA.S.field[AOA.S.field$date=="21_June",]
+AOA.T5.DT=AOA.S.field[AOA.S.field$date=="5_July",]
+AOA.T6.DT=AOA.S.field[AOA.S.field$date=="19_July",]
+AOA.T7.DT=AOA.S.field[AOA.S.field$date=="1_August",]
+
+AOA.DT1= data.frame(AOA.T1.DT$AOA)
+AOA.DT2= data.frame(AOA.T2.DT$AOA)
+AOA.DT3= data.frame(AOA.T3.DT$AOA)
+AOA.DT4= data.frame(AOA.T4.DT$AOA)
+AOA.DT5= data.frame(AOA.T5.DT$AOA)
+AOA.DT6= data.frame(AOA.T6.DT$AOA)
+AOA.DT7= data.frame(AOA.T7.DT$AOA)
+
+
+
+nirk.T1.DT=nirK.S.field[nirK.S.field$date=="10_May",]
+nirk.T2.DT=nirK.S.field[nirK.S.field$date=="24_May",]
+nirk.T3.DT=nirK.S.field[nirK.S.field$date=="7_June",]
+nirk.T4.DT=nirK.S.field[nirK.S.field$date=="21_June",]
+nirk.T5.DT=nirK.S.field[nirK.S.field$date=="5_July",]
+nirk.T6.DT=nirK.S.field[nirK.S.field$date=="19_July",]
+nirk.T7.DT=nirK.S.field[nirK.S.field$date=="1_August",]
+
+nirk.DT1=data.frame(nirk.T1.DT$nirk)
+nirk.DT2=data.frame(nirk.T2.DT$nirk)
+nirk.DT3=data.frame(nirk.T3.DT$nirk)
+nirk.DT4=data.frame(nirk.T4.DT$nirk)
+nirk.DT5=data.frame(nirk.T5.DT$nirk)
+nirk.DT6=data.frame(nirk.T6.DT$nirk)
+nirk.DT7=data.frame(nirk.T7.DT$nirk)
+
+nosz.T1.DT=nosZ.S.field[nosZ.S.field$date=="10_May",]
+nosz.T2.DT=nosZ.S.field[nosZ.S.field$date=="24_May",]
+nosz.T3.DT=nosZ.S.field[nosZ.S.field$date=="7_June",]
+nosz.T4.DT=nosZ.S.field[nosZ.S.field$date=="21_June",]
+nosz.T5.DT=nosZ.S.field[nosZ.S.field$date=="5_July",]
+nosz.T6.DT=nosZ.S.field[nosZ.S.field$date=="19_July",]
+nosz.T7.DT=nosZ.S.field[nosZ.S.field$date=="1_August",]
+
+nosz.DT1=data.frame(nosz.T1.DT$nosZ)
+nosz.DT2=data.frame(nosz.T2.DT$nosZ)
+nosz.DT3=data.frame(nosz.T3.DT$nosZ)
+nosz.DT4=data.frame(nosz.T4.DT$nosZ)
+nosz.DT5=data.frame(nosz.T5.DT$nosZ)
+nosz.DT6=data.frame(nosz.T6.DT$nosZ)
+nosz.DT7=data.frame(nosz.T7.DT$nosZ)
+
+
+FB.T1.DT=FB.S.field[nosZ.S.field$date=="10_May",]
+FB.T2.DT=FB.S.field[nosZ.S.field$date=="24_May",]
+FB.T3.DT=FB.S.field[nosZ.S.field$date=="7_June",]
+FB.T4.DT=FB.S.field[nosZ.S.field$date=="21_June",]
+FB.T5.DT=FB.S.field[nosZ.S.field$date=="5_July",]
+FB.T6.DT=FB.S.field[nosZ.S.field$date=="19_July",]
+FB.T7.DT=FB.S.field[nosZ.S.field$date=="1_August",]
+
+FB.DT1=data.frame(FB.T1.DT$F.B.ratio)
+FB.DT2=data.frame(FB.T2.DT$F.B.ratio)
+FB.DT3=data.frame(FB.T3.DT$F.B.ratio)
+FB.DT4=data.frame(FB.T4.DT$F.B.ratio)
+FB.DT5=data.frame(FB.T5.DT$F.B.ratio)
+FB.DT6=data.frame(FB.T6.DT$F.B.ratio)
+FB.DT7=data.frame(FB.T7.DT$F.B.ratio)
+```
+#Subsetting accordding to different time point (ACNass)
+```{r}
+AOB.T1.DS=AOB.AC.Nass[AOB.AC.Nass$date=="10_May",]
+AOB.T2.DS=AOB.AC.Nass[AOB.AC.Nass$date=="24_May",]
+AOB.T3.DS=AOB.AC.Nass[AOB.AC.Nass$date=="7_June",]
+AOB.T4.DS=AOB.AC.Nass[AOB.AC.Nass$date=="21_June",]
+AOB.T5.DS=AOB.AC.Nass[AOB.AC.Nass$date=="5_July",]
+AOB.T6.DS=AOB.AC.Nass[AOB.AC.Nass$date=="19_July",]
+AOB.T7.DS=AOB.AC.Nass[AOB.AC.Nass$date=="1_August",]
+
+
+AOB.DS1= data.frame(AOB.T1.DS$AOB)
+AOB.DS2= data.frame(AOB.T2.DS$AOB)
+AOB.DS3= data.frame(AOB.T3.DS$AOB)
+AOB.DS4= data.frame(AOB.T4.DS$AOB)
+AOB.DS5= data.frame(AOB.T5.DS$AOB)
+AOB.DS6= data.frame(AOB.T6.DS$AOB)
+AOB.DS7= data.frame(AOB.T7.DS$AOB)
+
+
+AOA.T1.DS=AOA.AC.Nass[AOA.AC.Nass$date=="10_May",]
+AOA.T2.DS=AOA.AC.Nass[AOA.AC.Nass$date=="24_May",]
+AOA.T3.DS=AOA.AC.Nass[AOA.AC.Nass$date=="7_June",]
+AOA.T4.DS=AOA.AC.Nass[AOA.AC.Nass$date=="21_June",]
+AOA.T5.DS=AOA.AC.Nass[AOA.AC.Nass$date=="5_July",]
+AOA.T6.DS=AOA.AC.Nass[AOA.AC.Nass$date=="19_July",]
+AOA.T7.DS=AOA.AC.Nass[AOA.AC.Nass$date=="1_August",]
+
+AOA.DS1= data.frame(AOA.T1.DS$AOA)
+AOA.DS2= data.frame(AOA.T2.DS$AOA)
+AOA.DS3= data.frame(AOA.T3.DS$AOA)
+AOA.DS4= data.frame(AOA.T4.DS$AOA)
+AOA.DS5= data.frame(AOA.T5.DS$AOA)
+AOA.DS6= data.frame(AOA.T6.DS$AOA)
+AOA.DS7= data.frame(AOA.T7.DS$AOA)
+
+
+nirk.T1.DS=nirk.AC.Nass[nirk.AC.Nass$date=="10_May",]
+nirk.T2.DS=nirk.AC.Nass[nirk.AC.Nass$date=="24_May",]
+nirk.T3.DS=nirk.AC.Nass[nirk.AC.Nass$date=="7_June",]
+nirk.T4.DS=nirk.AC.Nass[nirk.AC.Nass$date=="21_June",]
+nirk.T5.DS=nirk.AC.Nass[nirk.AC.Nass$date=="5_July",]
+nirk.T6.DS=nirk.AC.Nass[nirk.AC.Nass$date=="19_July",]
+nirk.T7.DS=nirk.AC.Nass[nirk.AC.Nass$date=="1_August",]
+
+nirk.DS1=data.frame(nirk.T1.DS$nirk)
+nirk.DS2=data.frame(nirk.T2.DS$nirk)
+nirk.DS3=data.frame(nirk.T3.DS$nirk)
+nirk.DS4=data.frame(nirk.T4.DS$nirk)
+nirk.DS5=data.frame(nirk.T5.DS$nirk)
+nirk.DS6=data.frame(nirk.T6.DS$nirk)
+nirk.DS7=data.frame(nirk.T7.DS$nirk)
+
+
+
+nosz.T1.DS=nosZ.AC.Nass[nosZ.AC.Nass$date=="10_May",]
+nosz.T2.DS=nosZ.AC.Nass[nosZ.AC.Nass$date=="24_May",]
+nosz.T3.DS=nosZ.AC.Nass[nosZ.AC.Nass$date=="7_June",]
+nosz.T4.DS=nosZ.AC.Nass[nosZ.AC.Nass$date=="21_June",]
+nosz.T5.DS=nosZ.AC.Nass[nosZ.AC.Nass$date=="5_July",]
+nosz.T6.DS=nosZ.AC.Nass[nosZ.AC.Nass$date=="19_July",]
+nosz.T7.DS=nosZ.AC.Nass[nosZ.AC.Nass$date=="1_August",]
+
+nosz.DS1=data.frame(nosz.T1.DS$nosZ)
+nosz.DS2=data.frame(nosz.T2.DS$nosZ)
+nosz.DS3=data.frame(nosz.T3.DS$nosZ)
+nosz.DS4=data.frame(nosz.T4.DS$nosZ)
+nosz.DS5=data.frame(nosz.T5.DS$nosZ)
+nosz.DS6=data.frame(nosz.T6.DS$nosZ)
+nosz.DS7=data.frame(nosz.T7.DS$nosZ)
+
+
+FB.T1.DS=FB.AC.Nass[nosZ.AC.Nass$date=="10_May",]
+FB.T2.DS=FB.AC.Nass[nosZ.AC.Nass$date=="24_May",]
+FB.T3.DS=FB.AC.Nass[nosZ.AC.Nass$date=="7_June",]
+FB.T4.DS=FB.AC.Nass[nosZ.AC.Nass$date=="21_June",]
+FB.T5.DS=FB.AC.Nass[nosZ.AC.Nass$date=="5_July",]
+FB.T6.DS=FB.AC.Nass[nosZ.AC.Nass$date=="19_July",]
+FB.T7.DS=FB.AC.Nass[nosZ.AC.Nass$date=="1_August",]
+
+FB.DS1=data.frame(FB.T1.DS$F.B.ratio)
+FB.DS2=data.frame(FB.T2.DS$F.B.ratio)
+FB.DS3=data.frame(FB.T3.DS$F.B.ratio)
+FB.DS4=data.frame(FB.T4.DS$F.B.ratio)
+FB.DS5=data.frame(FB.T5.DS$F.B.ratio)
+FB.DS6=data.frame(FB.T6.DS$F.B.ratio)
+FB.DS7=data.frame(FB.T7.DS$F.B.ratio)
+
+
+```
+#Keep only genes for draught tolenrence
+```{R}
+all.DT.genes.1=cbind(AOB.T1.DT,AOA.T1.DT,nirk.T1.DT,nosz.T1.DT,FB.T1.DT)
+qpcr.DT.T1=all.DT.genes.1[,which(names(all.DT.genes.1) %in% c("AOB","AOA","nirk","nosZ","F.B.ratio"))]
+
+all.DT.genes.2=cbind(AOB.T2.DT,AOA.T2.DT,nirk.T2.DT,nosz.T2.DT,FB.T2.DT)
+qpcr.DT.T2=all.DT.genes.2[,which(names(all.DT.genes.2) %in% c("AOB","AOA","nirk","nosZ","F.B.ratio"))]
+
+all.DT.genes.3=cbind(AOB.T3.DT,AOA.T3.DT,nirk.T3.DT,nosz.T3.DT,FB.T3.DT)
+qpcr.DT.T3=all.DT.genes.3[,which(names(all.DT.genes.3) %in% c("AOB","AOA","nirk","nosZ","F.B.ratio"))]
+
+all.DT.genes.4=cbind(AOB.T4.DT,AOA.T4.DT,nirk.T4.DT,nosz.T4.DT,FB.T4.DT)
+qpcr.DT.T4=all.DT.genes.4[,which(names(all.DT.genes.4) %in% c("AOB","AOA","nirk","nosZ","F.B.ratio"))]
+
+all.DT.genes.5=cbind(AOB.T5.DT,AOA.T5.DT,nirk.T5.DT,nosz.T5.DT,FB.T5.DT)
+qpcr.DT.T5=all.DT.genes.5[,which(names(all.DT.genes.5) %in% c("AOB","AOA","nirk","nosZ","F.B.ratio"))]
+
+all.DT.genes.6=cbind(AOB.T6.DT,AOA.T6.DT,nirk.T6.DT,nosz.T6.DT,FB.T6.DT)
+qpcr.DT.T6=all.DT.genes.6[,which(names(all.DT.genes.6) %in% c("AOB","AOA","nirk","nosZ","F.B.ratio"))]
+
+all.DT.genes.7=cbind(AOB.T7.DT,AOA.T7.DT,nirk.T7.DT,nosz.T7.DT,FB.T7.DT)
+qpcr.DT.T7=all.DT.genes.7[,which(names(all.DT.genes.7) %in% c("AOB","AOA","nirk","nosZ","F.B.ratio"))]
+
+```
+#Keep only genes for draught sensitive
+```{r}
+all.DS.genes.1=cbind(AOB.T1.DS,AOA.T1.DS,nirk.T1.DS,nosz.T1.DS,FB.T1.DS)
+qpcr.DS.T1=all.DS.genes.1[,which(names(all.DS.genes.1) %in% c("AOB","AOA","nirk","nosZ","F.B.ratio"))]
+
+all.DS.genes.2=cbind(AOB.T2.DS,AOA.T2.DS,nirk.T2.DS,nosz.T2.DS,FB.T2.DS)
+qpcr.DS.T2=all.DS.genes.2[,which(names(all.DS.genes.2) %in% c("AOB","AOA","nirk","nosZ","F.B.ratio"))]
+
+all.DS.genes.3=cbind(AOB.T3.DS,AOA.T3.DS,nirk.T3.DS,nosz.T3.DS,FB.T3.DS)
+qpcr.DS.T3=all.DS.genes.3[,which(names(all.DS.genes.3) %in% c("AOB","AOA","nirk","nosZ","F.B.ratio"))]
+
+all.DS.genes.4=cbind(AOB.T4.DS,AOA.T4.DS,nirk.T4.DS,nosz.T4.DS,FB.T4.DS)
+qpcr.DS.T4=all.DS.genes.4[,which(names(all.DS.genes.4) %in% c("AOB","AOA","nirk","nosZ","F.B.ratio"))]
+
+all.DS.genes.5=cbind(AOB.T5.DS,AOA.T5.DS,nirk.T5.DS,nosz.T5.DS,FB.T5.DS)
+qpcr.DS.T5=all.DS.genes.5[,which(names(all.DS.genes.5) %in% c("AOB","AOA","nirk","nosZ","F.B.ratio"))]
+
+all.DS.genes.6=cbind(AOB.T6.DS,AOA.T6.DS,nirk.T6.DS,nosz.T6.DS,FB.T6.DS)
+qpcr.DS.T6=all.DS.genes.6[,which(names(all.DS.genes.6) %in% c("AOB","AOA","nirk","nosZ","F.B.ratio"))]
+
+all.DS.genes.7=cbind(AOB.T7.DS,AOA.T7.DS,nirk.T7.DS,nosz.T7.DS,FB.T7.DS)
+qpcr.DS.T7=all.DS.genes.7[,which(names(all.DS.genes.7) %in% c("AOB","AOA","nirk","nosZ","F.B.ratio"))]
+```
+
+#Subsetting for grain qualities
+```{r}
+qual.data=read.table(file=paste("model.quality.txt", sep=""),row.names = 1, header=T, sep="\t")
+quality.timepoint=cbind(metafile,qual.data)
+
+strongfield.qual =quality.timepoint[which(quality.timepoint$Cultivar=="Strongfield"),]
+
+AC.Nass.qual=quality.timepoint[which(quality.timepoint$Cultivar=="AC Nass"),]
+
+```
+#Subsetting according to the different time point
+```{r}
+qual.T1=quality.timepoint[quality.timepoint$date=="10_May",]
+qual.T2=quality.timepoint[quality.timepoint$date=="24_May",]
+qual.T3=quality.timepoint[quality.timepoint$date=="7_June",]
+qual.T4=quality.timepoint[quality.timepoint$date=="21_June",]
+qual.T5=quality.timepoint[quality.timepoint$date=="5_July",]
+qual.T6=quality.timepoint[quality.timepoint$date=="19_July",]
+qual.T7=quality.timepoint[quality.timepoint$date=="1_August",]
+
+```
+#Subset for two clutivar at different dates
+```{R}
+qual.T1.DT=strongfield.qual[strongfield.qual$date=="10_May",]
+qual.T2.DT=strongfield.qual[strongfield.qual$date=="24_May",]
+qual.T3.DT=strongfield.qual[strongfield.qual$date=="7_June",]
+qual.T4.DT=strongfield.qual[strongfield.qual$date=="21_June",]
+qual.T5.DT=strongfield.qual[strongfield.qual$date=="5_July",]
+qual.T6.DT=strongfield.qual[strongfield.qual$date=="19_July",]
+qual.T7.DT=strongfield.qual[strongfield.qual$date=="1_August",]
+
+qual.T1.DS=AC.Nass.qual[AC.Nass.qual$date=="10_May",]
+qual.T2.DS=AC.Nass.qual[AC.Nass.qual$date=="24_May",]
+qual.T3.DS=AC.Nass.qual[AC.Nass.qual$date=="7_June",]
+qual.T4.DS=AC.Nass.qual[AC.Nass.qual$date=="21_June",]
+qual.T5.DS=AC.Nass.qual[AC.Nass.qual$date=="5_July",]
+qual.T6.DS=AC.Nass.qual[AC.Nass.qual$date=="19_July",]
+qual.T7.DS=AC.Nass.qual[AC.Nass.qual$date=="1_August",]
+```
+#Keep only the quality data
+```{r}
+qual.DT1=qual.T1.DT[,which(names(qual.T1.DT) %in% c("Protein.grain", "Proteine.flour", "Humidity","Ash","Gluten","IDC","PMT","BEM"))]
+qual.DT2=qual.T2.DT[,which(names(qual.T2.DT) %in% c("Protein.grain", "Proteine.flour","Humidity","Ash","Gluten","IDC","PMT","BEM"))]
+qual.DT3=qual.T3.DT[,which(names(qual.T3.DT) %in% c("Protein.grain", "Proteine.flour", "Humidity","Ash","Gluten","IDC","PMT","BEM"))]
+qual.DT4=qual.T4.DT[,which(names(qual.T4.DT) %in% c("Protein.grain",  "Proteine.flour","Humidity","Ash","Gluten","IDC","PMT","BEM"))]
+qual.DT5=qual.T5.DT[,which(names(qual.T5.DT) %in% c("Protein.grain", "Proteine.flour", "Humidity","Ash","Gluten","IDC","PMT","BEM"))]
+qual.DT6=qual.T6.DT[,which(names(qual.T6.DT) %in% c("Protein.grain", "Proteine.flour", "Humidity","Ash","Gluten","IDC","PMT","BEM"))]
+qual.DT7=qual.T7.DT[,which(names(qual.T7.DT) %in% c("Protein.grain", "Proteine.flour", "Humidity","Ash","Gluten","IDC","PMT","BEM"))]
+
+qual.DS1=qual.T1.DS[,which(names(qual.T1.DS) %in% c("Protein.grain", "Proteine.flour", "Humidity","Ash","Gluten","IDC","PMT","BEM"))]
+qual.DS2=qual.T2.DS[,which(names(qual.T2.DS) %in% c("Protein.grain", "Proteine.flour", "Humidity","Ash","Gluten","IDC","PMT","BEM"))]
+qual.DS3=qual.T3.DS[,which(names(qual.T3.DS) %in% c("Protein.grain", "Proteine.flour", "Humidity","Ash","Gluten","IDC","PMT","BEM"))]
+qual.DS4=qual.T4.DS[,which(names(qual.T4.DS) %in% c("Protein.grain", "Proteine.flour", "Humidity","Ash","Gluten","IDC","PMT","BEM"))]
+qual.DS5=qual.T5.DS[,which(names(qual.T5.DS) %in% c("Protein.grain", "Proteine.flour", "Humidity","Ash","Gluten","IDC","PMT","BEM"))]
+qual.DS6=qual.T6.DS[,which(names(qual.T6.DS) %in% c("Protein.grain",  "Proteine.flour","Humidity","Ash","Gluten","IDC","PMT","BEM"))]
+qual.DS7=qual.T7.DS[,which(names(qual.T7.DS) %in% c("Protein.grain",  "Proteine.flour","Humidity","Ash","Gluten","IDC","PMT","BEM"))]
+
+```
+
+#Correlation with grain quality (Draught variety)
+```{r}
+library(devtools)
+library(ggplot2)
+library(ggcorrplot)
+library(ggrastr)
+
+#qual.DT4=qual.DT4[-c(15),]
+#qual.DT7=qual.DT7[-c(10),]
+#qual.DT3=qual.DT3[-c(1),]
+
+
+row.names(qual.DT1)==row.names(qpcr.DT.T1)
+row.names(qual.DT2)==row.names(qpcr.DT.T2)
+row.names(qual.DT3)==row.names(qpcr.DT.T3)
+row.names(qual.DT4)==row.names(qpcr.DT.T4)
+row.names(qual.DT5)==row.names(qpcr.DT.T5)
+row.names(qual.DT6)==row.names(qpcr.DT.T6)
+row.names(qual.DT7)==row.names(qpcr.DT.T7)
+
+#qual.DS1=qual.DS1[-c(21),]
+#qual.DS3=qual.DS3[-c(21),]
+#qual.DS6=qual.DS6[-c(17,18),]
+#qual.DS7=qual.DS7[-c(10,17),]
+
+row.names(qual.DS1)==row.names(qpcr.DS.T1)
+row.names(qual.DS2)==row.names(qpcr.DS.T2)
+row.names(qual.DS3)==row.names(qpcr.DS.T3)
+row.names(qual.DS4)==row.names(qpcr.DS.T4)
+row.names(qual.DS5)==row.names(qpcr.DS.T5)
+row.names(qual.DS6)==row.names(qpcr.DS.T6)
+row.names(qual.DS7)==row.names(qpcr.DS.T7)
+
+
+
+```
+
+```{R}
+corr.qpcr.DT.1= cor(qpcr.DT.T1,qual.DT1,use = "pairwise.complete.obs")
+corr.qpcr.DT.2= cor(qpcr.DT.T2,qual.DT2,use = "pairwise.complete.obs")
+corr.qpcr.DT.3= cor(qpcr.DT.T3,qual.DT3,use = "pairwise.complete.obs")
+corr.qpcr.DT.4= cor(qpcr.DT.T4,qual.DT4,use = "pairwise.complete.obs")
+corr.qpcr.DT.5= cor(qpcr.DT.T5,qual.DT5,use = "pairwise.complete.obs")
+corr.qpcr.DT.6= cor(qpcr.DT.T6,qual.DT6,use = "pairwise.complete.obs")
+corr.qpcr.DT.7= cor(qpcr.DT.T7,qual.DT7,use = "pairwise.complete.obs")
+```
+
+```{R}
+corr.qpcr.DS.1= cor(qpcr.DS.T1,qual.DS1,use = "pairwise.complete.obs")
+corr.qpcr.DS.2= cor(qpcr.DS.T2,qual.DS2,use = "pairwise.complete.obs")
+corr.qpcr.DS.3= cor(qpcr.DS.T3,qual.DS3,use = "pairwise.complete.obs")
+corr.qpcr.DS.4= cor(qpcr.DS.T4,qual.DS4,use = "pairwise.complete.obs")
+corr.qpcr.DS.5= cor(qpcr.DS.T5,qual.DS5,use = "pairwise.complete.obs")
+corr.qpcr.DS.6= cor(qpcr.DS.T6,qual.DS6,use = "pairwise.complete.obs")
+corr.qpcr.DS.7= cor(qpcr.DS.T7,qual.DS7,use = "pairwise.complete.obs")
+
+
+```
+#Two-sided spearman rank correlation (DT genotype)
+```{r}
+
+i=1
+unlink ("cor7-qual.DT7-Spearman.txt")
+while (i<=8)
+{cor=cor.test(qual.DT7[,i],AOB.DT7[,1], method="spearman");
+p.value=cor$p.value; if(is.na(p.value)){p.value=1}; if(p.value<1)
+cat (colnames(qual.DT7)[i], "\t","AOB", "\t", cor$p.value, "\t", cor$estimate,  "\n", file=here("output/tables","cor7-qual-DT7.spearman.txt"), append=T);i=i+1}
+
+
+i=1
+unlink ("cor-qual-AOA.DT7-Spearman.txt")
+while (i<=8)
+{cor=cor.test(qual.DT7[,i],AOA.DT7[,1], method="spearman");
+p.value=cor$p.value; if(is.na(p.value)){p.value=1}; if(p.value<1)
+cat (colnames(qual.DT7)[i], "\t","AOA", "\t", cor$p.value, "\t", cor$estimate,  "\n", file=here("output/tables","cor-qual.AOA-DT7.spearman.txt"), append=T);i=i+1}
+
+
+i=1
+unlink ("cor-qual-nirK.DT7-Spearman.txt")
+while (i<=8)
+{cor=cor.test(qual.DT7[,i],nirk.DT7[,1], method="spearman");
+p.value=cor$p.value; if(is.na(p.value)){p.value=1}; if(p.value<1)
+cat (colnames(qual.DT7)[i], "\t","nirk", "\t", cor$p.value, "\t", cor$estimate,  "\n", file="cor-qual.nirk-DT7.spearman.txt", append=T);i=i+1}
+
+
+
+i=1
+unlink ("cor-qual-nosz.DT7-Spearman.txt")
+while (i<=8)
+{cor=cor.test(qual.DT7[,i],nosz.DT7[,1], method="spearman");
+p.value=cor$p.value; if(is.na(p.value)){p.value=1}; if(p.value<1)
+cat (colnames(qual.DT7)[i], "\t","nosZ", "\t", cor$p.value, "\t", cor$estimate,  "\n", file=here("output/tables","cor-qual.nosz-DT7.spearman.txt"), append=T);i=i+1}
+
+
+i=1
+unlink ("cor-qual-FB.ratio.DT7-Spearman.txt")
+while (i<=8)
+{cor=cor.test(qual.DT7[,i],FB.DT7[,1], method="spearman");
+p.value=cor$p.value; if(is.na(p.value)){p.value=1}; if(p.value<1)
+cat (colnames(qual.DT7)[i], "\t","FB.RATIO", "\t", cor$p.value, "\t", cor$estimate,  "\n", file=here("output/tables","cor-FB.ratio.DT7.spearman.txt"), append=T);i=i+1}
+
+
+```
+#Two-sided spearman rank correlation (DS genotype)
+```{R}
+i=1
+unlink ("cor-qual.AOB.DS7-Spearman.txt")
+while (i<=8)
+{cor=cor.test(qual.DS7[,i],AOB.DS7[,1], method="spearman");
+p.value=cor$p.value; if(is.na(p.value)){p.value=1}; if(p.value<1)
+cat (colnames(qual.DS7)[i], "\t","AOB", "\t", cor$p.value, "\t", cor$estimate,  "\n", file=here("output/tables","cor-qual.AOB-DS7.spearman.txt"), append=T);i=i+1}
+
+
+i=1
+unlink ("cor-qual-AOA.DS7-Spearman.txt")
+while (i<=8)
+{cor=cor.test(qual.DS7[,i],AOA.DS7[,1], method="spearman");
+p.value=cor$p.value; if(is.na(p.value)){p.value=1}; if(p.value<1)
+cat (colnames(qual.DS7)[i], "\t","AOA", "\t", cor$p.value, "\t", cor$estimate,  "\n", file=here("output/tables","cor-qual.AOA-DS7.spearman.txt"), append=T);i=i+1}
+
+
+i=1
+unlink ("cor-qual-nirK.DS7-Spearman.txt")
+while (i<=8)
+{cor=cor.test(qual.DS7[,i],nirk.DS7[,1], method="spearman");
+p.value=cor$p.value; if(is.na(p.value)){p.value=1}; if(p.value<1)
+cat (colnames(qual.DS7)[i], "\t","nirk", "\t", cor$p.value, "\t", cor$estimate,  "\n", file=here("output/tables","cor-qual.nirk-DS7.spearman.txt"), append=T);i=i+1}
+
+
+
+i=1
+unlink ("cor-qual-nosz.DS7-Spearman.txt")
+while (i<=8)
+{cor=cor.test(qual.DS7[,i],nosz.DS7[,1], method="spearman");
+p.value=cor$p.value; if(is.na(p.value)){p.value=1}; if(p.value<1)
+cat (colnames(qual.DS7)[i], "\t","nosZ", "\t", cor$p.value, "\t", cor$estimate,  "\n", file=here("output/tables","cor-qual.nosz-DS7.spearman.txt"), append=T);i=i+1}
+
+
+i=1
+unlink ("cor-qual-FB.ratio.DS1-Spearman.txt")
+while (i<=8)
+{cor=cor.test(qual.DS1[,i],FB.DS1[,1], method="spearman");
+p.value=cor$p.value; if(is.na(p.value)){p.value=1}; if(p.value<1)
+cat (colnames(qual.DS1)[i], "\t","FB.RATIO", "\t", cor$p.value, "\t", cor$estimate,  "\n", file=here("output/tables","cor-FB.ratio.DS1.spearman.txt"), append=T);i=i+1}
+
+```
+
+```{R}
+Cor.DT.1=ggcorrplot(corr.qpcr.DT.1,  method = "square") 
+Cor.DT.1+ guides(scale = "none")
+
+Cor.DT.2=ggcorrplot(corr.qpcr.DT.2,  method = "square") 
+Cor.DT.2+ guides(scale = "none")
+
+Cor.DT.3=ggcorrplot(corr.qpcr.DT.3,  method = "square") 
+Cor.DT.3+ guides(scale = "none")
+
+Cor.DT.4=ggcorrplot(corr.qpcr.DT.4,  method = "square") 
+Cor.DT.4+ guides(scale = "none")
+
+Cor.DT.5=ggcorrplot(corr.qpcr.DT.5,  method = "square") 
+Cor.DT.5+ guides(scale = "none")
+
+Cor.DT.6=ggcorrplot(corr.qpcr.DT.6,  method = "square") 
+Cor.DT.6+ guides(scale = "none")
+
+Cor.DT.7=ggcorrplot(corr.qpcr.DT.7,  method = "square") 
+Cor.DT.7+ guides(scale = "none")
+```
+
+```{R}
+Cor.DS.1=ggcorrplot(corr.qpcr.DS.1,  method = "square") 
+Cor.DS.1+ guides(scale = "none")
+
+Cor.DS.2=ggcorrplot(corr.qpcr.DS.2,  method = "square") 
+Cor.DS.2+ guides(scale = "none")
+
+Cor.DS.3=ggcorrplot(corr.qpcr.DS.3,  method = "square") 
+Cor.DS.3+ guides(scale = "none")
+
+Cor.DS.4=ggcorrplot(corr.qpcr.DS.4,  method = "square") 
+Cor.DS.4+ guides(scale = "none")
+
+Cor.DS.5=ggcorrplot(corr.qpcr.DS.5,  method = "square") 
+Cor.DS.5+ guides(scale = "none")
+
+Cor.DS.6=ggcorrplot(corr.qpcr.DS.6,  method = "square") 
+Cor.DS.6+ guides(scale = "none")
+
+Cor.DS.7=ggcorrplot(corr.qpcr.DS.7,  method = "square") 
+Cor.DS.7+ guides(scale = "none")
+
+```
+
+```{R}
+ggsave(file=here("output/photo","COR.DT.QPCR.1.tiff"),Cor.DT.1, units="cm", width=30, height=20, dpi=600, compression = 'lzw')
+
+ggsave(file=here("output/photo","COR.DT.QPCR.2.tiff"),Cor.DT.2, units="cm", width=30, height=20, dpi=600, compression = 'lzw')
+ggsave(file=here("output/photo","COR.DT.QPCR.3.tiff"),Cor.DT.3, units="cm", width=30, height=20, dpi=600, compression = 'lzw')
+ggsave(file=here("output/photo","COR.DT.QPCR.4.tiff"),Cor.DT.4, units="cm", width=30, height=20, dpi=600, compression = 'lzw')
+ggsave(file=here("output/photo","COR.DT.QPCR.5.tiff"),Cor.DT.5, units="cm", width=30, height=20, dpi=600, compression = 'lzw')
+ggsave(file=here("output/photo","COR.DT.QPCR.6.tiff"),Cor.DT.6, units="cm", width=30, height=20, dpi=600, compression = 'lzw')
+ggsave(file=here("output/photo","COR.DT.QPCR.7.tiff"),Cor.DT.7, units="cm", width=30, height=20, dpi=600, compression = 'lzw')
+#theme(legend.position = "none")
+
+```
+#RDA analysis
+```{r}
+qpcr.T1=cbind(aob.may10,nirk.may10,aoa.may10,nosZ.may10,qual.T1)
+qpcr.T1=na.omit(qpcr.T1)
+qpcr.gene.T1= qpcr.T1[,-which(names(qpcr.T1) %in% c("ID", "month", "date","Treatment","block","Cultivar","Experience","Protein.grain", "Protein.flour","Proteine.flour", "Humidity","Ash","Gluten","IDC","PMT","BEM"))]
+quality.T1= qpcr.T1[,-which(names(qpcr.T1) %in% c("ID", "month", "date","Treatment","block","Cultivar","Experience","nirK","AOA","AOB","nirK","nosZ"))]
+metafile.T1= qpcr.T1[,which(names(qpcr.T1) %in% c("ID", "month", "date","Treatment","block","Cultivar","Experience"))]
+
+qpcr.T1.hel=decostand(qpcr.gene.T1,"hellinger")
+quality.T1.hel=decostand(quality.T1,"hellinger")
+df.T1= cbind(metafile.T1,qpcr.T1.hel,quality.T1.hel)
+
+#create dummy variables
+
+Draught.Tolerance <- ifelse(df.T1$Cultivar == 'Strongfield', 1, 0)
+Draught.Sensitive <- ifelse(df.T1$Cultivar == 'AC Nass', 1, 0)
+df.T1<- data.frame(df.T1,
+                    Draught.Tolerance=Draught.Tolerance,
+                    Draught.Sensitive=Draught.Sensitive)
+
+df.T1=na.omit(df.T1)
+
+rda.qpcr.T1=cca(qpcr.T1.hel ~ Protein.grain+Proteine.flour+Proteine.flour+ Gluten+IDC+PMT+BEM+Draught.Sensitive+Draught.Tolerance, data=df.T1)
+
+anova.cca(rda.qpcr.T1)
+summary (rda.qpcr.T1)
+
+
+
+rda.qpcr.T1$CCA$eig[1]/sum(rda.qpcr.T1$CCA$eig)*100#Axis1
+rda.qpcr.T1$CCA$eig[2]/sum(rda.qpcr.T1$CCA$eig)*100#Axis2
+
+rda1 =plot(rda.qpcr.T1, scaling =1, main=" RDA triplot with abundant N2-related gene abundunce")
+asvs.scr=scores(rda1, choices = 1:2, scaling = 1, display = "sp")
+biplot=scores(asvs.scr, choices = 1:2, scaling = 1, display = "sites")
+arrows(0,0, asvs.scr[,1],asvs.scr[,2], length=0.1,lty = 1,col="dark grey")
+```
+
+```{r}
+qpcr.T2=cbind(aob.may24,nirk.may24,aoa.may24,nosZ.may10,qual.T2)
+qpcr.T2=na.omit(qpcr.T2)
+qpcr.gene.T2= qpcr.T2[,-which(names(qpcr.T2) %in% c("ID", "month", "date","Treatment","block","Cultivar","Experience","Protein.grain", "Proteine.flour", "Humidity","Ash","Gluten","IDC","PMT","BEM"))]
+quality.T2= qpcr.T2[,-which(names(qpcr.T2) %in% c("ID", "month", "date","Treatment","block","Cultivar","Experience","AOA","AOB","nirK","nosZ"))]
+metafile.T2= qpcr.T2[,which(names(qpcr.T2) %in% c("ID", "month", "date","Treatment","block","Cultivar","Experience"))]
+
+qpcr.T2.hel=decostand(qpcr.gene.T2,"hellinger")
+quality.T2.hel=decostand(quality.T2,"hellinger")
+df.T2= cbind(metafile.T2,qpcr.T2.hel,quality.T2.hel)
+
+#create dummy variables
+
+Draught.Tolerance <- ifelse(df.T2$Cultivar == 'Strongfield', 1, 0)
+Draught.Sensitive <- ifelse(df.T2$Cultivar == 'AC Nass', 1, 0)
+df.T2<- data.frame(df.T2,
+                    Draught.Tolerance=Draught.Tolerance,
+                    Draught.Sensitive=Draught.Sensitive)
+
+df.T2=na.omit(df.T2)
+rda.qpcr.T2=cca(qpcr.T2.hel ~ Protein.grain+Proteine.flour+Proteine.flour+ Gluten+IDC+PMT+BEM+Draught.Sensitive+Draught.Tolerance, data=df.T2)
+
+anova.cca(rda.qpcr.T2)
+summary (rda.qpcr.T2)
+
+
+rda.qpcr.T2$CCA$eig[1]/sum(rda.qpcr.T2$CCA$eig)*100#Axis1
+rda.qpcr.T2$CCA$eig[2]/sum(rda.qpcr.T2$CCA$eig)*100#Axis2
+
+rda2 =plot(rda.qpcr.T2, scaling =1, main=" RDA triplot with abundant N2-related gene abundunce")
+asvs.scr=scores(rda2, choices = 1:2, scaling = 1, display = "sp")
+biplot=scores(asvs.scr, choices = 1:2, scaling = 1, display = "sites")
+arrows(0,0, asvs.scr[,1],asvs.scr[,2], length=0.1,lty = 1,col="dark grey")
+
+
+```
+
+```{r}
+library(vegan)
+qpcr.T3=cbind(aob.may10,nirk.may10,aoa.may10,nosZ.may10,qual.T3)
+qpcr.T3=na.omit(qpcr.T3)
+qpcr.gene.T3= qpcr.T3[,-which(names(qpcr.T3) %in% c("ID", "month", "date","Treatment","block","Cultivar","Experience","Protein.grain", "Protein.flour","Proteine.flour", "Humidity","Ash","Gluten","IDC","PMT","BEM"))]
+quality.T3= qpcr.T3[,-which(names(qpcr.T3) %in% c("ID", "month", "date","Treatment","block","Cultivar","Experience","nirK","AOA","AOB","nirK","nosZ"))]
+metafile.T3= qpcr.T3[,which(names(qpcr.T3) %in% c("ID", "month", "date","Treatment","block","Cultivar","Experience"))]
+
+qpcr.T3.hel=decostand(qpcr.gene.T3,"hellinger")
+quality.T3.hel=decostand(quality.T3,"hellinger")
+df.T3= cbind(metafile.T3,qpcr.T3.hel,quality.T3.hel)
+
+#create dummy variables
+
+Draught.Tolerance <- ifelse(df.T1$Cultivar == 'Strongfield', 1, 0)
+Draught.Sensitive <- ifelse(df.T1$Cultivar == 'AC Nass', 1, 0)
+df.T3<- data.frame(df.T3,
+                    Draught.Tolerance=Draught.Tolerance,
+                    Draught.Sensitive=Draught.Sensitive)
+
+df.T3=na.omit(df.T3)
+
+rda.qpcr.T3=cca(qpcr.T3.hel ~ Protein.grain+Proteine.flour+Proteine.flour+ Gluten+IDC+PMT+BEM+Draught.Sensitive+Draught.Tolerance, data=df.T3)
+
+anova.cca(rda.qpcr.T3)
+summary (rda.qpcr.T3)
+
+
+rda.qpcr.T3$CCA$eig[1]/sum(rda.qpcr.T3$CCA$eig)*100#Axis1
+rda.qpcr.T3$CCA$eig[2]/sum(rda.qpcr.T3$CCA$eig)*100#Axis2
+
+rda3 =plot(rda.qpcr.T3, scaling =1, main=" RDA triplot with abundant N2-related gene abundunce")
+asvs.scr=scores(rda3, choices = 1:2, scaling = 1, display = "sp")
+biplot=scores(asvs.scr, choices = 1:2, scaling = 1, display = "sites")
+arrows(0,0, asvs.scr[,1],asvs.scr[,2], length=0.1,lty = 1,col="dark grey")
+
+
+```
+
+```{r}
+qpcr.T4=cbind(aob.may10,nirk.may10,aoa.may10,nosZ.may10,qual.T4)
+qpcr.T4=na.omit(qpcr.T4)
+qpcr.gene.T4= qpcr.T4[,-which(names(qpcr.T4) %in% c("ID", "month", "date","Treatment","block","Cultivar","Experience","Protein.grain", "Protein.flour","Proteine.flour", "Humidity","Ash","Gluten","IDC","PMT","BEM"))]
+quality.T4= qpcr.T4[,-which(names(qpcr.T4) %in% c("ID", "month", "date","Treatment","block","Cultivar","Experience","nirK","AOA","AOB","nirK","nosZ"))]
+metafile.T4= qpcr.T4[,which(names(qpcr.T4) %in% c("ID", "month", "date","Treatment","block","Cultivar","Experience"))]
+
+qpcr.T4.hel=decostand(qpcr.gene.T4,"hellinger")
+quality.T4.hel=decostand(quality.T4,"hellinger")
+df.T4= cbind(metafile.T4,qpcr.T4.hel,quality.T4.hel)
+
+#create dummy variables
+
+Draught.Tolerance <- ifelse(df.T1$Cultivar == 'Strongfield', 1, 0)
+Draught.Sensitive <- ifelse(df.T1$Cultivar == 'AC Nass', 1, 0)
+df.T4<- data.frame(df.T4,
+                    Draught.Tolerance=Draught.Tolerance,
+                    Draught.Sensitive=Draught.Sensitive)
+
+df.T4=na.omit(df.T4)
+
+rda.qpcr.T4=cca(qpcr.T4.hel ~ Protein.grain+Proteine.flour+Proteine.flour+ Gluten+IDC+PMT+BEM+Draught.Sensitive+Draught.Tolerance, data=df.T4)
+
+anova.cca(rda.qpcr.T4)
+summary (rda.qpcr.T4)
+
+
+rda.qpcr.T4$CCA$eig[1]/sum(rda.qpcr.T4$CCA$eig)*100#Axis1
+rda.qpcr.T4$CCA$eig[2]/sum(rda.qpcr.T4$CCA$eig)*100#Axis2
+
+rda4 =plot(rda.qpcr.T4, scaling =1, main=" RDA triplot with abundant N2-related gene abundunce")
+asvs.scr=scores(rda4, choices = 1:2, scaling = 1, display = "sp")
+biplot=scores(asvs.scr, choices = 1:2, scaling = 1, display = "sites")
+arrows(0,0, asvs.scr[,1],asvs.scr[,2], length=0.1,lty = 1,col="dark grey")
+
+
+
+
+```
+
+```{r}
+qpcr.T5=cbind(aob.may10,nirk.may10,aoa.may10,nosZ.may10,qual.T5)
+qpcr.T5=na.omit(qpcr.T5)
+qpcr.gene.T5= qpcr.T5[,-which(names(qpcr.T5) %in% c("ID", "month", "date","Treatment","block","Cultivar","Experience","Protein.grain", "Protein.flour","Proteine.flour", "Humidity","Ash","Gluten","IDC","PMT","BEM"))]
+quality.T5= qpcr.T5[,-which(names(qpcr.T5) %in% c("ID", "month", "date","Treatment","block","Cultivar","Experience","nirK","AOA","AOB","nirK","nosZ"))]
+metafile.T5= qpcr.T5[,which(names(qpcr.T5) %in% c("ID", "month", "date","Treatment","block","Cultivar","Experience"))]
+
+qpcr.T5.hel=decostand(qpcr.gene.T5,"hellinger")
+quality.T5.hel=decostand(quality.T5,"hellinger")
+df.T5= cbind(metafile.T5,qpcr.T5.hel,quality.T5.hel)
+
+#create dummy variables
+
+Draught.Tolerance <- ifelse(df.T5$Cultivar == 'Strongfield', 1, 0)
+Draught.Sensitive <- ifelse(df.T5$Cultivar == 'AC Nass', 1, 0)
+df.T5<- data.frame(df.T5,
+                    Draught.Tolerance=Draught.Tolerance,
+                    Draught.Sensitive=Draught.Sensitive)
+
+df.T5=na.omit(df.T5)
+
+rda.qpcr.T5=cca(qpcr.T5.hel ~ Protein.grain+Proteine.flour+Proteine.flour+ Gluten+IDC+PMT+BEM+Draught.Sensitive+Draught.Tolerance, data=df.T5)
+
+anova.cca(rda.qpcr.T5)
+summary (rda.qpcr.T5)
+
+
+rda.qpcr.T5$CCA$eig[1]/sum(rda.qpcr.T5$CCA$eig)*100#Axis1
+rda.qpcr.T5$CCA$eig[2]/sum(rda.qpcr.T5$CCA$eig)*100#Axis2
+
+rda5 =plot(rda.qpcr.T5, scaling =1, main=" RDA triplot with abundant N2-related gene abundunce")
+asvs.scr=scores(rda5, choices = 1:2, scaling = 1, display = "sp")
+biplot=scores(asvs.scr, choices = 1:2, scaling = 1, display = "sites")
+arrows(0,0, asvs.scr[,1],asvs.scr[,2], length=0.1,lty = 1,col="dark grey")
+
+
+
+```
+
+```{r}
+
+qpcr.T6=cbind(aob.may10,nirk.may10,aoa.may10,nosZ.may10,qual.T6)
+qpcr.T6=na.omit(qpcr.T6)
+qpcr.gene.T6= qpcr.T6[,-which(names(qpcr.T6) %in% c("ID", "month", "date","Treatment","block","Cultivar","Experience","Protein.grain", "Protein.flour","Proteine.flour", "Humidity","Ash","Gluten","IDC","PMT","BEM"))]
+quality.T6= qpcr.T6[,-which(names(qpcr.T6) %in% c("ID", "month", "date","Treatment","block","Cultivar","Experience","nirK","AOA","AOB","nirK","nosZ"))]
+metafile.T6= qpcr.T6[,which(names(qpcr.T6) %in% c("ID", "month", "date","Treatment","block","Cultivar","Experience"))]
+
+qpcr.T6.hel=decostand(qpcr.gene.T6,"hellinger")
+quality.T6.hel=decostand(quality.T6,"hellinger")
+df.T6= cbind(metafile.T6,qpcr.T6.hel,quality.T6.hel)
+
+#create dummy variables
+
+Draught.Tolerance <- ifelse(df.T6$Cultivar == 'Strongfield', 1, 0)
+Draught.Sensitive <- ifelse(df.T6$Cultivar == 'AC Nass', 1, 0)
+df.T6<- data.frame(df.T6,
+                    Draught.Tolerance=Draught.Tolerance,
+                    Draught.Sensitive=Draught.Sensitive)
+
+df.T5=na.omit(df.T6)
+
+rda.qpcr.T6=cca(qpcr.T6.hel ~ Protein.grain+Proteine.flour+Proteine.flour+ Gluten+IDC+PMT+BEM+Draught.Sensitive+Draught.Tolerance, data=df.T6)
+anova.cca(rda.qpcr.T6)
+summary (rda.qpcr.T6)
+
+
+rda.qpcr.T6$CCA$eig[1]/sum(rda.qpcr.T6$CCA$eig)*100#Axis1
+rda.qpcr.T6$CCA$eig[2]/sum(rda.qpcr.T6$CCA$eig)*100#Axis2
+
+rda6 =plot(rda.qpcr.T6, scaling =1, main=" RDA triplot with abundant N2-related gene abundunce")
+asvs.scr=scores(rda6, choices = 1:2, scaling = 1, display = "sp")
+biplot=scores(asvs.scr, choices = 1:2, scaling = 1, display = "sites")
+arrows(0,0, asvs.scr[,1],asvs.scr[,2], length=0.1,lty = 1,col="dark grey")
+
+
+
+
+```
+
+```{r}
+qpcr.T7=cbind(aob.may10,nirk.may10,aoa.may10,nosZ.may10,qual.T7)
+qpcr.T7=na.omit(qpcr.T7)
+qpcr.gene.T7= qpcr.T7[,-which(names(qpcr.T7) %in% c("ID", "month", "date","Treatment","block","Cultivar","Experience","Protein.grain", "Protein.flour","Proteine.flour", "Humidity","Ash","Gluten","IDC","PMT","BEM"))]
+quality.T7= qpcr.T7[,-which(names(qpcr.T7) %in% c("ID", "month", "date","Treatment","block","Cultivar","Experience","nirK","AOA","AOB","nirK","nosZ"))]
+metafile.T7= qpcr.T7[,which(names(qpcr.T7) %in% c("ID", "month", "date","Treatment","block","Cultivar","Experience"))]
+
+qpcr.T7.hel=decostand(qpcr.gene.T7,"hellinger")
+quality.T7.hel=decostand(quality.T7,"hellinger")
+df.T7= cbind(metafile.T7,qpcr.T7.hel,quality.T7.hel)
+
+#create dummy variables
+
+Draught.Tolerance <- ifelse(df.T7$Cultivar == 'Strongfield', 1, 0)
+Draught.Sensitive <- ifelse(df.T7$Cultivar == 'AC Nass', 1, 0)
+df.T7<- data.frame(df.T7,
+                    Draught.Tolerance=Draught.Tolerance,
+                    Draught.Sensitive=Draught.Sensitive)
+
+df.T7=na.omit(df.T7)
+
+rda.qpcr.T7=cca(qpcr.T7.hel ~ Protein.grain+Proteine.flour+Proteine.flour+ Gluten+IDC+PMT+BEM+Draught.Sensitive+Draught.Tolerance, data=df.T7)
+anova.cca(rda.qpcr.T7)
+summary (rda.qpcr.T7)
+
+
+rda.qpcr.T7$CCA$eig[1]/sum(rda.qpcr.T7$CCA$eig)*100#Axis1
+rda.qpcr.T7$CCA$eig[2]/sum(rda.qpcr.T7$CCA$eig)*100#Axis2
+
+rda7 =plot(rda.qpcr.T7, scaling =1, main=" RDA triplot with abundant N2-related gene abundunce")
+asvs.scr=scores(rda7, choices = 1:2, scaling = 1, display = "sp")
+biplot=scores(asvs.scr, choices = 1:2, scaling = 1, display = "sites")
+arrows(0,0, asvs.scr[,1],asvs.scr[,2], length=0.1,lty = 1,col="dark grey")
+
+
+
+```
+
