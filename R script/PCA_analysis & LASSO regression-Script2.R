@@ -643,7 +643,7 @@ write.table(pca.axis5.ITS.DT.T7,here("output/tables","PCA.axis5.ITS.DT.T7.csv"),
 
 #Biolog PCA
 
-# 5 May data (BIOLOG)
+#10 May data (BIOLOG)
 
 
 #PCA run for T1
@@ -998,12 +998,13 @@ plot(lasso_test.DT.T1.glut, xvar = "lambda")
 #perform k-fold cross-validation to find optimal lambda value
 ##grid=10^seq(10,-2, length=100)# We can apply this extra grid function for tuning lambdas
 #This "grid" search begins with null model up-to 10 fold repetitive search for optimal lambda values
+#sample, 10 fold random division of data without specifying the row number may yield different lambda values)
 #X= number of row of the input data e.g. X.glut.DT.T1 (to obtain the constant lambda value during cross validation, as it contains only 23 
 #If the objective X is not working in the nrow function, then use directly X data matrix, like nfolds=nrow(X.glut.DT.T1).
-#sample, 10 fold random division of data without specifying the row number may yield different lambda values)
+
 #One can change the cross validation threshold to 3 or 5 folds, but in my analysis 10 folds produced the most optimal lambda.
 
-cv_model.glut.DT.T1 <- cv.glmnet(X.glut.DT.T1, Y.glut.DT.T1, k=10, nfolds=nrow(X), alpha = 1, standardize=TRUE, grouped=FALSE)
+cv_model.glut.DT.T1 <- cv.glmnet(X.glut.DT.T1, Y.glut.DT.T1, k=10, nfolds=nrow(X.glut.DT.T1), alpha = 1, standardize=TRUE, grouped=FALSE)
 
 #find optimal lambda value that minimizes test MSE
 best_lambda.glut.DT.T1 <- cv_model.glut.DT.T1$lambda.min
@@ -1096,7 +1097,7 @@ lasso_test.DT.T1.prot<-glmnet(X.prot.DT.T1, Y.prot.DT.T1, alpha = 1, standardize
 plot(lasso_test.DT.T1.glut, xvar = "lambda")
 
 #perform k-fold cross-validation to find optimal lambda value
-cv_model.prot.DT.T1 <- cv.glmnet(X.prot.DT.T1, Y.prot.DT.T1, k=10,nfold=nrow(X), alpha = 1, standardize=TRUE, grouped=FALSE)
+cv_model.prot.DT.T1 <- cv.glmnet(X.prot.DT.T1, Y.prot.DT.T1, k=10,nfold=nrow(X.prot.DT.T1), alpha = 1, standardize=TRUE, grouped=FALSE)
 
 
 #find optimal lambda value that minimizes test MSE
@@ -1196,7 +1197,7 @@ lasso.pmt.DT.T1<-coef(fit.lasso.pmt, s=s.best.lasso)
 lasso.pmt.DT.T1
 
 #perform k-fold cross-validation to find optimal lambda value
-cv_model.pmt.DT.T1 <- cv.glmnet(X.pmt.DT.T1, Y.pmt.DT.T1, K=10, nfolds=nrow(X), alpha = 1, standardize=TRUE, grouped =FALSE )
+cv_model.pmt.DT.T1 <- cv.glmnet(X.pmt.DT.T1, Y.pmt.DT.T1, K=10, nfolds=nrow(X.pmt.DT.T1), alpha = 1, standardize=TRUE, grouped =FALSE )
 
 #find optimal lambda value that minimizes test MSE
 best_lambda.pmt.DT.T1 <- cv_model.pmt.DT.T1$lambda.min
@@ -1236,7 +1237,7 @@ lasso.bem.DT.T1<-coef(fit.lasso.bem, s=s.best.lasso)
 lasso.bem.DT.T1
 
 #perform k-fold cross-validation to find optimal lambda value
-cv_model.bem.DT.T1 <- cv.glmnet(X.bem.DT.T1, Y.bem.DT.T1, k=10,nfolds=nrow(X), alpha = 1, standardize=TRUE, grouped = FALSE)
+cv_model.bem.DT.T1 <- cv.glmnet(X.bem.DT.T1, Y.bem.DT.T1, k=10,nfolds=nrow(X.bem.DT.T1), alpha = 1, standardize=TRUE, grouped = FALSE)
 
 #find optimal lambda value that minimizes test MSE
 best_lambda.bem.DT.T1 <- cv_model.bem.DT.T1$lambda.min
@@ -1368,7 +1369,7 @@ lasso.glut.DT.T2
 
 
 #perform k-fold cross-validation to find optimal lambda value
-cv_model.glut.DT.T2<- cv.glmnet(X.glut.DT.T2, Y.glut.DT.T2, k=10, nfolds = nrow(X), alpha = 1, standardize=TRUE, grouped = FALSE)
+cv_model.glut.DT.T2<- cv.glmnet(X.glut.DT.T2, Y.glut.DT.T2, k=10, nfolds = nrow(X.glut.DT.T2), alpha = 1, standardize=TRUE, grouped = FALSE)
 
 
 
@@ -1413,7 +1414,7 @@ lasso.prot.DT.T2<-coef(fit.lasso.prot.DT.T2, s=s.best.lasso)
 lasso.prot.DT.T2
 
 #perform k-fold cross-validation to find optimal lambda value
-cv_model.prot.DT.T2<- cv.glmnet(X.prot.DT.T2, Y.prot.DT.T2, k=10, nfolds = nrow(X), alpha = 1, standardize=TRUE, grouped = FALSE)
+cv_model.prot.DT.T2<- cv.glmnet(X.prot.DT.T2, Y.prot.DT.T2, k=10, nfolds = nrow(X.prot.DT.T2), alpha = 1, standardize=TRUE, grouped = FALSE)
 
 #find optimal lambda value that minimizes test MSE
 best_lambda.prot.DT.T2 <- cv_model.prot.DT.T2$lambda.min
@@ -1478,7 +1479,7 @@ lasso.pmt.DT.T2<-coef(fit.lasso.pmt.DT.T2, s=s.best.lasso)
 lasso.pmt.DT.T2
 
 #perform k-fold cross-validation to find optimal lambda value
-cv_model.pmt.DT.T2<- cv.glmnet(X.pmt.DT.T2, Y.pmt.DT.T2, k=10,nfolds=nrow(X), alpha = 1, standardize=TRUE, grouped = FALSE)
+cv_model.pmt.DT.T2<- cv.glmnet(X.pmt.DT.T2, Y.pmt.DT.T2, k=10,nfolds=nrow(X.pmt.DT.T2), alpha = 1, standardize=TRUE, grouped = FALSE)
 
 #find optimal lambda value that minimizes test MSE
 best_lambda.pmt.DT.T2 <- cv_model.pmt.DT.T2$lambda.min
@@ -1537,7 +1538,7 @@ lasso.bem.DT.T2
 
 
 #perform k-fold cross-validation to find optimal lambda value
-cv_model.bem.DT.T2<- cv.glmnet(X.bem.DT.T2, Y.bem.DT.T2, k=10, nfolds=nrow(X), alpha = 1, standardize=TRUE, grouped = FALSE)
+cv_model.bem.DT.T2<- cv.glmnet(X.bem.DT.T2, Y.bem.DT.T2, k=10, nfolds=nrow(X.bem.DT.T2), alpha = 1, standardize=TRUE, grouped = FALSE)
 
 #find optimal lambda value that minimizes test MSE
 best_lambda.bem.DT.T2 <- cv_model.bem.DT.T2$lambda.min
@@ -1651,7 +1652,7 @@ lasso.glut.DT.T3
 plot(fit.lasso.glut.DT.T3,xvar="lambda",label=TRUE)
 
 #perform k-fold cross-validation to find optimal lambda value
-cv_model.glut.DT.T3<- cv.glmnet(X.glut.DT.T3, Y.glut.DT.T3, k=10,nfolds = nrow(X), alpha = 1,standardize=TRUE, grouped = FALSE)
+cv_model.glut.DT.T3<- cv.glmnet(X.glut.DT.T3, Y.glut.DT.T3, k=10,nfolds = nrow(X.glut.DT.T3), alpha = 1,standardize=TRUE, grouped = FALSE)
 
 #find optimal lambda value that minimizes test MSE
 best_lambda.glut.DT.T3 <- cv_model.glut.DT.T3$lambda.min
@@ -1700,7 +1701,7 @@ results.DT.glut.T3.filt
 
 
 # Visualize the predictive plot
-write.table(results.DT.glut.T3.filt,file = here("output/tables" "results_labels_glut_DT.T3.txt"),sep="\t" )
+write.table(results.DT.glut.T3.filt,file = here("output/tables","results_labels_glut_DT.T3.txt"),sep="\t" )
 
 
 result_labels_gluten_DT.T3<- results %>%
@@ -1758,7 +1759,7 @@ lasso.prot.DT.T3
 set.seed(1)
 
 #perform k-fold cross-validation to find optimal lambda value
-cv_model.prot.DT.T3<- cv.glmnet(X.prot.DT.T3, Y.prot.DT.T3, nfolds=nrow(X), alpha =1, standardize=TRUE, grouped = FALSE)
+cv_model.prot.DT.T3<- cv.glmnet(X.prot.DT.T3, Y.prot.DT.T3, nfolds=nrow(X.prot.DT.T3), alpha =1, standardize=TRUE, grouped = FALSE)
 
 #find optimal lambda value that minimizes test MSE
 best_lambda.prot.DT.T3 <- cv_model.prot.DT.T3$lambda.min
@@ -1823,7 +1824,7 @@ lasso.pmt.DT.T3<-coef(fit.lasso.pmt.DT.T3, s=s.best.lasso)
 lasso.pmt.DT.T3
 
 #perform k-fold cross-validation to find optimal lambda value
-cv_model.pmt.DT.T3<- cv.glmnet(X.pmt.DT.T3, Y.pmt.DT.T3, k=10,nfolds = nrow(X), alpha = 1, standardize=TRUE, grouped = FALSE)
+cv_model.pmt.DT.T3<- cv.glmnet(X.pmt.DT.T3, Y.pmt.DT.T3, k=10,nfolds = nrow(X.pmt.DT.T3), alpha = 1, standardize=TRUE, grouped = FALSE)
 
 #find optimal lambda value that minimizes test MSE
 best_lambda.pmt.DT.T3 <- cv_model.pmt.DT.T3$lambda.min
@@ -1859,7 +1860,7 @@ lasso.bem.DT.T3<-coef(fit.lasso.bem.DT.T3, s=s.best.lasso)
 lasso.bem.DT.T3
 
 #perform k-fold cross-validation to find optimal lambda value
-cv_model.bem.DT.T3<- cv.glmnet(X.bem.DT.T3, Y.bem.DT.T3,k=10, nfolds = nrow(X), alpha = 1, standardize=TRUE, grouped=FALSE)
+cv_model.bem.DT.T3<- cv.glmnet(X.bem.DT.T3, Y.bem.DT.T3,k=10, nfolds = nrow(X.bem.DT.T3), alpha = 1, standardize=TRUE, grouped=FALSE)
 
 #find optimal lambda value that minimizes test MSE
 best_lambda.bem.DT.T3 <- cv_model.bem.DT.T3$lambda.min
@@ -2050,7 +2051,7 @@ lasso.prot.DT.T4
 
 set.seed (1)
 #perform k-fold cross-validation to find optimal lambda value
-cv_model.prot.DT.T4<- cv.glmnet(X.prot.DT.T4, Y.prot.DT.T4, nfolds=nrow(X),alpha = 1, standardize=TRUE, grouped = FALSE)
+cv_model.prot.DT.T4<- cv.glmnet(X.prot.DT.T4, Y.prot.DT.T4, nfolds=nrow(X.prot.DT.T4),alpha = 1, standardize=TRUE, grouped = FALSE)
 
 #find optimal lambda value that minimizes test MSE
 best_lambda.prot.DT.T4 <- cv_model.prot.DT.T4$lambda.min
@@ -2090,7 +2091,7 @@ lasso.pmt.DT.T4<-coef(fit.lasso.pmt.DT.T4, s=s.best.lasso)
 lasso.pmt.DT.T4
 
 #perform k-fold cross-validation to find optimal lambda value
-cv_model.pmt.DT.T4<- cv.glmnet(X.pmt.DT.T4, Y.pmt.DT.T4, k=10,nfolds=nrow(X), alpha = 1, standardize=TRUE, grouped =FALSE)
+cv_model.pmt.DT.T4<- cv.glmnet(X.pmt.DT.T4, Y.pmt.DT.T4, k=10,nfolds=nrow(X.pmt.DT.T4), alpha = 1, standardize=TRUE, grouped =FALSE)
 
 #find optimal lambda value that minimizes test MSE
 best_lambda.pmt.DT.T4 <- cv_model.pmt.DT.T4$lambda.min
@@ -2174,7 +2175,7 @@ train.control <- trainControl(method = "repeatedcv",
                               number = 10, repeats = 3)
 
 
-cv_model.bem.DT.T4<- cv.glmnet(X.bem.DT.T4, Y.bem.DT.T4,k=10, nfolds  =nrow(X), alpha = 1,standardize=TRUE, grouped = FALSE)
+cv_model.bem.DT.T4<- cv.glmnet(X.bem.DT.T4, Y.bem.DT.T4,k=10, nfolds  =nrow(X.bem.DT.T4), alpha = 1,standardize=TRUE, grouped = FALSE)
 
 
 
@@ -2324,7 +2325,7 @@ lasso.prot.DT.T5
 
 #perform k-fold cross-validation to find optimal lambda value
 
-cv_model.prot.DT.T5<- cv.glmnet(X.prot.DT.T5, Y.prot.DT.T5, k=10,nfolds=nrow(X), trControl=train.control, alpha = 1, standardize=TRUE, grouped = FALSE)
+cv_model.prot.DT.T5<- cv.glmnet(X.prot.DT.T5, Y.prot.DT.T5, k=10,nfolds=nrow(X.prot.DT.T5), trControl=train.control, alpha = 1, standardize=TRUE, grouped = FALSE)
 
 #find optimal lambda value that minimizes test MSE
 best_lambda.prot.DT.T5 <- cv_model.prot.DT.T5$lambda.min
@@ -2364,7 +2365,7 @@ lasso.pmt.DT.T5
 
 #perform k-fold cross-validation to find optimal lambda value
 
-cv_model.pmt.DT.T5<- cv.glmnet(X.pmt.DT.T5, Y.pmt.DT.T5, k=10,nfolds = nrow(X), alpha = 1, standardize=TRUE,grouped=FALSE)
+cv_model.pmt.DT.T5<- cv.glmnet(X.pmt.DT.T5, Y.pmt.DT.T5, k=10,nfolds = nrow(X.pmt.DT.T5), alpha = 1, standardize=TRUE,grouped=FALSE)
 
 #find optimal lambda value that minimizes test MSE
 best_lambda.pmt.DT.T5 <- cv_model.pmt.DT.T5$lambda.min
@@ -2404,7 +2405,7 @@ lasso.bem.DT.T5
 
 #perform k-fold cross-validation to find optimal lambda value
 
-cv_model.bem.DT.T5<- cv.glmnet(X.bem.DT.T5, Y.bem.DT.T5, k=10, nfolds = nrow(X), alpha = 1, standardize=TRUE, grouped = FALSE)
+cv_model.bem.DT.T5<- cv.glmnet(X.bem.DT.T5, Y.bem.DT.T5, k=10, nfolds = nrow(X.bem.DT.T5), alpha = 1, standardize=TRUE, grouped = FALSE)
 
 #find optimal lambda value that minimizes test MSE
 best_lambda.bem.DT.T5 <- cv_model.bem.DT.T5$lambda.min
@@ -2629,7 +2630,7 @@ lasso.bem.DT.T6
 
 #perform k-fold cross-validation to find optimal lambda value
 
-cv_model.bem.DT.T6<- cv.glmnet(X.bem.DT.T6, Y.bem.DT.T6, nfolds =nrow(X), trControl=train.control, alpha = 1, standardize=TRUE, grouped = FALSE)
+cv_model.bem.DT.T6<- cv.glmnet(X.bem.DT.T6, Y.bem.DT.T6, nfolds =nrow(X.bem.DT.T6), trControl=train.control, alpha = 1, standardize=TRUE, grouped = FALSE)
 
 #find optimal lambda value that minimizes test MSE
 best_lambda.bem.DT.T6 <- cv_model.bem.DT.T6$lambda.min
@@ -2800,7 +2801,7 @@ lasso.prot.DT.T7
 
 #perform k-fold cross-validation to find optimal lambda value
 
-cv_model.prot.DT.T7<- cv.glmnet(X.prot.DT.T7, Y.prot.DT.T7, nfolds =nrow(X),  alpha = 1, standardize=TRUE, grouped = FALSE)
+cv_model.prot.DT.T7<- cv.glmnet(X.prot.DT.T7, Y.prot.DT.T7, nfolds =nrow(X.prot.DT.T7),  alpha = 1, standardize=TRUE, grouped = FALSE)
 
 #find optimal lambda value that minimizes test MSE
 best_lambda.prot.DT.T7 <- cv_model.prot.DT.T7$lambda.min
@@ -2840,7 +2841,7 @@ lasso.pmt.DT.T7
 
 #perform k-fold cross-validation to find optimal lambda value
 
-cv_model.pmt.DT.T7<- cv.glmnet(X.pmt.DT.T7, Y.pmt.DT.T7,k=10, nfolds=nrow(X), alpha = 1, standardize=TRUE, grouped = FALSE)
+cv_model.pmt.DT.T7<- cv.glmnet(X.pmt.DT.T7, Y.pmt.DT.T7,k=10, nfolds=nrow(X.pmt.DT.T7), alpha = 1, standardize=TRUE, grouped = FALSE)
 
 #find optimal lambda value that minimizes test MSE
 best_lambda.pmt.DT.T7 <- cv_model.pmt.DT.T7$lambda.min
@@ -2878,7 +2879,7 @@ lasso.bem.DT.T7
 
 #perform k-fold cross-validation to find optimal lambda value
 
-cv_model.bem.DT.T7<- cv.glmnet(X.bem.DT.T7, Y.bem.DT.T7, k=10, nfolds = nrow(X), alpha = 1, standardize=TRUE, grouped = FALSE)
+cv_model.bem.DT.T7<- cv.glmnet(X.bem.DT.T7, Y.bem.DT.T7, k=10, nfolds = nrow(X.bem.DT.T7), alpha = 1, standardize=TRUE, grouped = FALSE)
 
 #find optimal lambda value that minimizes test MSE
 best_lambda.bem.DT.T7 <- cv_model.bem.DT.T7$lambda.min
@@ -3932,7 +3933,7 @@ lasso.glut.DS.T1
 
 
 #perform k-fold cross-validation to find optimal lambda value
-cv_model.glut.DS.T1 <- cv.glmnet(X.glut.DS.T1, Y.glut.DS.T1, k=10, nfolds=nrow(X),alpha = 1, standardize=TRUE, grouped = FALSE)
+cv_model.glut.DS.T1 <- cv.glmnet(X.glut.DS.T1, Y.glut.DS.T1, k=10, nfolds=nrow(X.glut.DS.T1),alpha = 1, standardize=TRUE, grouped = FALSE)
 
 #find optimal lambda value that minimizes test MSE
 best_lambda.glut.DS.T1 <- cv_model.glut.DS.T1$lambda.min
@@ -4001,7 +4002,7 @@ lasso.prot.DS.T1
 
 
 #perform k-fold cross-validation to find optimal lambda value
-cv_model.prot.DS.T1 <- cv.glmnet(X.prot.DS.T1, Y.prot.DS.T1,K=10, nfolds  =nrow(X), alpha = 1, standardize=TRUE, grouped = FALSE)
+cv_model.prot.DS.T1 <- cv.glmnet(X.prot.DS.T1, Y.prot.DS.T1,K=10, nfolds=nrow(X.prot.DS.T1), alpha = 1, standardize=TRUE, grouped = FALSE)
 
 #find optimal lambda value that minimizes test MSE
 best_lambda.prot.DS.T1 <- cv_model.prot.DS.T1$lambda.min
@@ -4088,7 +4089,7 @@ lasso.pmt.DS.T1
 
 
 #perform k-fold cross-validation to find optimal lambda value
-cv_model.pmt.DS.T1 <- cv.glmnet(X.pmt.DS.T1, Y.pmt.DS.T1, k=10, nfolds=nrow(X), alpha = 1, standardize=TRUE, grouped = FALSE)
+cv_model.pmt.DS.T1 <- cv.glmnet(X.pmt.DS.T1, Y.pmt.DS.T1, k=10, nfolds=nrow(X.pmt.DS.T1), alpha = 1, standardize=TRUE, grouped = FALSE)
 
 #find optimal lambda value that minimizes test MSE
 best_lambda.pmt.DS.T1 <- cv_model.pmt.DS.T1$lambda.min
@@ -4135,7 +4136,7 @@ lasso.bem.DS.T1<-coef(fit.lasso.bem.DS.T1, s=s.best.lasso)
 lasso.bem.DS.T1
 
 #perform k-fold cross-validation to find optimal lambda value
-cv_model.bem.DS.T1 <- cv.glmnet(X.bem.DS.T1, Y.bem.DS.T1, k=10, nfolds=nrow(X),alpha = 1,standardize=1,grouped = FALSE)
+cv_model.bem.DS.T1 <- cv.glmnet(X.bem.DS.T1, Y.bem.DS.T1, k=10, nfolds=nrow(X.bem.DS.T1),alpha = 1,standardize=1,grouped = FALSE)
 
 #find optimal lambda value that minimizes test MSE
 best_lambda.bem.DS.T1 <- cv_model.bem.DS.T1$lambda.min
@@ -4300,7 +4301,7 @@ lasso.glut.DS.T2
 
 
 #perform k-fold cross-validation to find optimal lambda value
-cv_model.glut.DS.T2 <- cv.glmnet(X.glut.DS.T2, Y.glut.DS.T2, k=10,nfolds = nrow(X), alpha = 1, standardize=TRUE, grouped = FALSE)
+cv_model.glut.DS.T2 <- cv.glmnet(X.glut.DS.T2, Y.glut.DS.T2, k=10,nfolds = nrow(X.glut.DS.T2), alpha = 1, standardize=TRUE, grouped = FALSE)
 
 #find optimal lambda value that minimizes test MSE
 best_lambda.glut.DS.T2 <- cv_model.glut.DS.T2$lambda.min
@@ -4349,7 +4350,7 @@ lasso.prot.DS.T2<-coef(fit.lasso.prot.DS.T2, s=s.best.lasso)
 lasso.prot.DS.T2
 
 #perform k-fold cross-validation to find optimal lambda value
-cv_model.prot.DS.T2 <- cv.glmnet(X.prot.DS.T2, Y.prot.DS.T2, k=10,nfolds = nrow(X), alpha = 1, standardize=TRUE, grouped = FALSE)
+cv_model.prot.DS.T2 <- cv.glmnet(X.prot.DS.T2, Y.prot.DS.T2, k=10,nfolds = nrow(X.prot.DS.T2), alpha = 1, standardize=TRUE, grouped = FALSE)
 
 #find optimal lambda value that minimizes test MSE
 best_lambda.prot.DS.T2 <- cv_model.prot.DS.T2$lambda.min
@@ -4388,7 +4389,7 @@ lasso.pmt.DS.T2
 
 
 #perform k-fold cross-validation to find optimal lambda value
-cv_model.pmt.DS.T2 <- cv.glmnet(X.pmt.DS.T2, Y.pmt.DS.T2, k=10,nfolds = nrow(X), alpha = 1, standardize=TRUE, grouped = FALSE)
+cv_model.pmt.DS.T2 <- cv.glmnet(X.pmt.DS.T2, Y.pmt.DS.T2, k=10,nfolds = nrow(X.pmt.DS.T2), alpha = 1, standardize=TRUE, grouped = FALSE)
 
 #find optimal lambda value that minimizes test MSE
 best_lambda.pmt.DS.T2 <- cv_model.pmt.DS.T2$lambda.min
@@ -4429,7 +4430,7 @@ lasso.bem.DS.T2<-coef(fit.lasso.bem.DS.T2, s=s.best.lasso)
 lasso.bem.DS.T2
 
 #perform k-fold cross-validation to find optimal lambda value
-cv_model.bem.DS.T2 <- cv.glmnet(X.bem.DS.T2, Y.bem.DS.T2, k=10, nfolds = nrow(X),alpha = 1, standardize=TRUE, grouped = FALSE)
+cv_model.bem.DS.T2 <- cv.glmnet(X.bem.DS.T2, Y.bem.DS.T2, k=10, nfolds = nrow(X.bem.DS.T2),alpha = 1, standardize=TRUE, grouped = FALSE)
 
 #find optimal lambda value that minimizes test MSE
 best_lambda.bem.DS.T2 <- cv_model.bem.DS.T2$lambda.min
@@ -4576,7 +4577,7 @@ lasso.glut.DS.T3<-coef(fit.lasso.glut.DS.T3, s=s.best.lasso)
 lasso.glut.DS.T3
 
 #perform k-fold cross-validation to find optimal lambda value
-cv_model.glut.DS.T3 <- cv.glmnet(X.glut.DS.T3, Y.glut.DS.T3,  nfolds = nrow(X), alpha = 1, standardize=TRUE, grouped = FALSE)
+cv_model.glut.DS.T3 <- cv.glmnet(X.glut.DS.T3, Y.glut.DS.T3,  nfolds=nrow(X.glut.DS.T3), alpha = 1, standardize=TRUE, grouped = FALSE)
 
 #find optimal lambda value that minimizes test MSE
 best_lambda.glut.DS.T3 <- cv_model.glut.DS.T3$lambda.min
@@ -4676,7 +4677,7 @@ lasso.prot.DS.T3<-coef(fit.lasso.prot.DS.T3, s=s.best.lasso)
 lasso.prot.DS.T3
 
 #perform k-fold cross-validation to find optimal lambda value
-cv_model.prot.DS.T3 <- cv.glmnet(X.prot.DS.T3, Y.prot.DS.T3, k=10, nfolds = nrow(X), alpha = 1, standardize=TRUE, grouped = FALSE)
+cv_model.prot.DS.T3 <- cv.glmnet(X.prot.DS.T3, Y.prot.DS.T3, k=10, nfolds = nrow(X.prot.DS.T3), alpha = 1, standardize=TRUE, grouped = FALSE)
 
 #find optimal lambda value that minimizes test MSE
 best_lambda.prot.DS.T3 <- cv_model.prot.DS.T3$lambda.min
@@ -4713,7 +4714,7 @@ lasso.pmt.DS.T3<-coef(fit.lasso.pmt.DS.T3, s=s.best.lasso)
 lasso.pmt.DS.T3
 
 #perform k-fold cross-validation to find optimal lambda value
-cv_model.pmt.DS.T3 <- cv.glmnet(X.pmt.DS.T3, Y.pmt.DS.T3, K=10, nfolds = nrow(X), alpha = 1, standardize=TRUE, grouped = FALSE)
+cv_model.pmt.DS.T3 <- cv.glmnet(X.pmt.DS.T3, Y.pmt.DS.T3, K=10, nfolds = nrow(X.pmt.DS.T3), alpha = 1, standardize=TRUE, grouped = FALSE)
 
 #find optimal lambda value that minimizes test MSE
 best_lambda.pmt.DS.T3 <- cv_model.pmt.DS.T3$lambda.min
@@ -4788,7 +4789,7 @@ lasso.bem.DS.T3<-coef(fit.lasso.bem.DS.T3, s=s.best.lasso)
 lasso.bem.DS.T3
 
 #perform k-fold cross-validation to find optimal lambda value
-cv_model.bem.DS.T3 <- cv.glmnet(X.bem.DS.T3, Y.bem.DS.T3, k=10, nfolds=nrow(X),alpha = 1, standardize=TRUE, grouped = FALSE)
+cv_model.bem.DS.T3 <- cv.glmnet(X.bem.DS.T3, Y.bem.DS.T3, k=10, nfolds=nrow(X.bem.DS.T3),alpha = 1, standardize=TRUE, grouped = FALSE)
 
 #find optimal lambda value that minimizes test MSE
 best_lambda.bem.DS.T3 <- cv_model.bem.DS.T3$lambda.min
@@ -4898,7 +4899,7 @@ lasso.glut.DS.T4
 
 
 #perform k-fold cross-validation to find optimal lambda value
-cv_model.glut.DS.T4 <- cv.glmnet(X.glut.DS.T4,Y.glut.DS.T4, k=10, nfolds = nrow(X), alpha = 1, standardize=TRUE, grouped = FALSE)
+cv_model.glut.DS.T4 <- cv.glmnet(X.glut.DS.T4,Y.glut.DS.T4, k=10, nfolds = nrow(X.glut.DS.T4), alpha = 1, standardize=TRUE, grouped = FALSE)
 
 #find optimal lambda value that minimizes test MSE
 best_lambda.glut.DS.T4 <- cv_model.glut.DS.T4$lambda.min
@@ -4960,7 +4961,7 @@ lasso.prot.DS.T4<-coef(fit.lasso.prot.DS.T4, s=s.best.lasso)
 lasso.prot.DS.T4
 
 #perform k-fold cross-validation to find optimal lambda value
-cv_model.prot.DS.T4 <- cv.glmnet(X.prot.DS.T4,Y.prot.DS.T4, k=10, nfolds = nrow(X), alpha = 1, standardize=TRUE, grouped = FALSE)
+cv_model.prot.DS.T4 <- cv.glmnet(X.prot.DS.T4,Y.prot.DS.T4, k=10, nfolds = nrow(X.prot.DS.T4), alpha = 1, standardize=TRUE, grouped = FALSE)
 
 #find optimal lambda value that minimizes test MSE
 best_lambda.prot.DS.T4 <- cv_model.prot.DS.T4$lambda.min
@@ -4999,7 +5000,7 @@ lasso.pmt.DS.T4<-coef(fit.lasso.pmt.DS.T4, s=s.best.lasso)
 lasso.pmt.DS.T4
 
 #perform k-fold cross-validation to find optimal lambda value
-cv_model.pmt.DS.T4<- cv.glmnet(X.pmt.DS.T4,Y.pmt.DS.T4, k=10, nfolds = nrow(X), alpha = 1, standardize=TRUE, grouped = FALSE)
+cv_model.pmt.DS.T4<- cv.glmnet(X.pmt.DS.T4,Y.pmt.DS.T4, k=10, nfolds = nrow(X.pmt.DS.T4), alpha = 1, standardize=TRUE, grouped = FALSE)
 
 #find optimal lambda value that minimizes test MSE
 
@@ -5039,7 +5040,7 @@ lasso.bem.DS.T4<-coef(fit.lasso.bem.DS.T4, s=s.best.lasso)
 lasso.bem.DS.T4
 
 #perform k-fold cross-validation to find optimal lambda value
-cv_model.bem.DS.T4<- cv.glmnet(X.bem.DS.T4,Y.bem.DS.T4, k=10,nfolds = nrow(X), alpha = 1, standardize=TRUE, grouped=FALSE)
+cv_model.bem.DS.T4<- cv.glmnet(X.bem.DS.T4,Y.bem.DS.T4, k=10,nfolds = nrow(X.bem.DS.T4), alpha = 1, standardize=TRUE, grouped=FALSE)
 
 #find optimal lambda value that minimizes test MSE
 
@@ -5187,7 +5188,7 @@ lasso.glut.DS.T5<-coef(fit.lasso.glut.DS.T5, s=s.best.lasso)
 lasso.glut.DS.T5
 
 #perform k-fold cross-validation to find optimal lambda value
-cv_model.glut.DS.T5 <- cv.glmnet(X.glut.DS.T5,Y.glut.DS.T5, k=10, nfolds=nrow(X), alpha = 1, standardize=TRUE, grouped = FALSE)
+cv_model.glut.DS.T5 <- cv.glmnet(X.glut.DS.T5,Y.glut.DS.T5, k=10, nfolds=nrow(X.glut.DS.T5), alpha = 1, standardize=TRUE, grouped = FALSE)
 
 #find optimal lambda value that minimizes test MSE
 best_lambda.glut.DS.T5 <- cv_model.glut.DS.T5$lambda.min
@@ -5226,7 +5227,7 @@ lasso.prot.DS.T5<-coef(fit.lasso.prot.DS.T5, s=s.best.lasso)
 lasso.prot.DS.T5
 
 #perform k-fold cross-validation to find optimal lambda value
-cv_model.prot.DS.T5 <- cv.glmnet(X.prot.DS.T5,Y.prot.DS.T5, K=10,  nfolds=nrow(X), alpha = 1, standardize=TRUE)
+cv_model.prot.DS.T5 <- cv.glmnet(X.prot.DS.T5,Y.prot.DS.T5, K=10,  nfolds=nrow(X.prot.DS.T5), alpha = 1, standardize=TRUE)
 
 #find optimal lambda value that minimizes test MSE
 best_lambda.prot.DS.T5 <- cv_model.prot.DS.T5$lambda.min
@@ -5289,7 +5290,7 @@ lasso.pmt.DS.T5
 
 
 #perform k-fold cross-validation to find optimal lambda value
-cv_model.pmt.DS.T5 <- cv.glmnet(X.pmt.DS.T5,Y.pmt.DS.T5, k=10,nfolds=nrow(X), alpha = 1, standardize=TRUE, grouped=FALSE)
+cv_model.pmt.DS.T5 <- cv.glmnet(X.pmt.DS.T5,Y.pmt.DS.T5, k=10,nfolds=nrow(X.pmt.DS.T5), alpha = 1, standardize=TRUE, grouped=FALSE)
 
 #find optimal lambda value that minimizes test MSE
 best_lambda.pmt.DS.T5 <- cv_model.pmt.DS.T5$lambda.min
@@ -5331,7 +5332,7 @@ lasso.bem.DS.T5
 
 
 #perform k-fold cross-validation to find optimal lambda value
-cv_model.bem.DS.T5 <- cv.glmnet(X.bem.DS.T5,Y.bem.DS.T5, k=10,nfolds=nrow(X), alpha = 1, standardize=TRUE, grouped = FALSE)
+cv_model.bem.DS.T5 <- cv.glmnet(X.bem.DS.T5,Y.bem.DS.T5, k=10,nfolds=nrow(X.bem.DS.T5), alpha = 1, standardize=TRUE, grouped = FALSE)
 
 #find optimal lambda value that minimizes test MSE
 best_lambda.bem.DS.T5 <- cv_model.bem.DS.T5$lambda.min
@@ -5465,7 +5466,7 @@ lasso.glut.DS.T6
 
 
 #perform k-fold cross-validation to find optimal lambda value
-cv_model.glut.DS.T6 <- cv.glmnet(X.glut.DS.T6,Y.glut.DS.T6, k=10, nfolds=nrow(X),alpha = 1, standardize=TRUE, grouped=FALSE)
+cv_model.glut.DS.T6 <- cv.glmnet(X.glut.DS.T6,Y.glut.DS.T6, k=10, nfolds=nrow(X.glut.DS.T6),alpha = 1, standardize=TRUE, grouped=FALSE)
 
 #find optimal lambda value that minimizes test MSE
 best_lambda.glut.DS.T6 <- cv_model.glut.DS.T6$lambda.min
@@ -5531,7 +5532,7 @@ lasso.prot.DS.T6<-coef(fit.lasso.prot.DS.T6, s=s.best.lasso)
 lasso.prot.DS.T6
 
 #perform k-fold cross-validation to find optimal lambda value
-cv_model.prot.DS.T6 <- cv.glmnet(X.prot.DS.T6,Y.prot.DS.T6, k=10,nfolds=nrow(X), alpha = 1, standardize=TRUE, grouped = FALSE)
+cv_model.prot.DS.T6 <- cv.glmnet(X.prot.DS.T6,Y.prot.DS.T6, k=10,nfolds=nrow(X.prot.DS.T6), alpha = 1, standardize=TRUE, grouped = FALSE)
 
 #find optimal lambda value that minimizes test MSE
 best_lambda.prot.DS.T6 <- cv_model.prot.DS.T6$lambda.min
@@ -5589,7 +5590,7 @@ lasso.pmt.DS.T6<-coef(fit.lasso.pmt.DS.T6, s=s.best.lasso)
 lasso.pmt.DS.T6
 
 #perform k-fold cross-validation to find optimal lambda value
-cv_model.pmt.DS.T6 <- cv.glmnet(X.pmt.DS.T6,Y.pmt.DS.T6, k=10,nfolds=nrow(X), alpha = 1, standardize=TRUE)
+cv_model.pmt.DS.T6 <- cv.glmnet(X.pmt.DS.T6,Y.pmt.DS.T6, k=10,nfolds=nrow(X.pmt.DS.T6), alpha = 1, standardize=TRUE)
 
 #find optimal lambda value that minimizes test MSE
 best_lambda.pmt.DS.T6 <- cv_model.pmt.DS.T6$lambda.min
@@ -5627,7 +5628,7 @@ lasso.bem.DS.T6
 
 
 #perform k-fold cross-validation to find optimal lambda value
-cv_model.bem.DS.T6 <- cv.glmnet(X.bem.DS.T6,Y.bem.DS.T6, k=10,nfolds=nrow(X), alpha = 1, standardize=TRUE)
+cv_model.bem.DS.T6 <- cv.glmnet(X.bem.DS.T6,Y.bem.DS.T6, k=10,nfolds=nrow(X.bem.DS.T6), alpha = 1, standardize=TRUE)
 
 #find optimal lambda value that minimizes test MSE
 best_lambda.bem.DS.T6 <- cv_model.bem.DS.T6$lambda.min
@@ -5739,7 +5740,7 @@ lasso.glut.DS.T7
 
 
 #perform k-fold cross-validation to find optimal lambda value
-cv_model.glut.DS.T7 <- cv.glmnet(X.glut.DS.T7,Y.glut.DS.T7, k=10,nfolds=nrow(X), alpha = 1, standardize=TRUE, grouped=FALSE)
+cv_model.glut.DS.T7 <- cv.glmnet(X.glut.DS.T7,Y.glut.DS.T7, k=10,nfolds=nrow(X.glut.DS.T7), alpha = 1, standardize=TRUE, grouped=FALSE)
 
 #find optimal lambda value that minimizes test MSE
 best_lambda.glut.DS.T7 <- cv_model.glut.DS.T7$lambda.min
@@ -5778,7 +5779,7 @@ lasso.prot.DS.T7
 
 
 #perform k-fold cross-validation to find optimal lambda value
-cv_model.prot.DS.T7 <- cv.glmnet(X.prot.DS.T7,Y.prot.DS.T7, k=10, nfolds = nrow(X), alpha = 1, standardize=TRUE, grouped=FALSE)
+cv_model.prot.DS.T7 <- cv.glmnet(X.prot.DS.T7,Y.prot.DS.T7, k=10, nfolds = nrow(X.prot.DS.T7), alpha = 1, standardize=TRUE, grouped=FALSE)
 
 #find optimal lambda value that minimizes test MSE
 best_lambda.prot.DS.T7 <- cv_model.prot.DS.T7$lambda.min
@@ -5840,7 +5841,7 @@ lasso.pmt.DS.T7
 
 #perform k-fold cross-validation to find optimal lambda value
 grid=10^seq(10,-2, length=100)
-cv_model.pmt.DS.T7 <- cv.glmnet(X.pmt.DS.T7,Y.pmt.DS.T7, nfolds=nrow(X), lambda=grid, alpha = 1,  standardize=TRUE)
+cv_model.pmt.DS.T7 <- cv.glmnet(X.pmt.DS.T7,Y.pmt.DS.T7, nfolds=nrow(X.pmt.DS.T7), lambda=grid, alpha = 1,  standardize=TRUE)
 
 #find optimal lambda value that minimizes test MSE
 best_lambda.pmt.DS.T7 <- cv_model.pmt.DS.T7$lambda.min
@@ -5887,7 +5888,7 @@ lasso.bem.DS.T7
 
 
 #perform k-fold cross-validation to find optimal lambda value
-cv_model.bem.DS.T7 <- cv.glmnet(X.bem.DS.T7,Y.bem.DS.T7, k=10,nfolds=nrow(X), alpha = 1, standardize=TRUE)
+cv_model.bem.DS.T7 <- cv.glmnet(X.bem.DS.T7,Y.bem.DS.T7, k=10,nfolds=nrow(X.bem.DS.T7), alpha = 1, standardize=TRUE)
 
 #find optimal lambda value that minimizes test MSE
 best_lambda.bem.DS.T7 <- cv_model.bem.DS.T7$lambda.min
