@@ -984,10 +984,9 @@ lasso.glut.DT.T1
 lasso_test.DT.T1.glut<-glmnet(X.glut.DT.T1, Y.glut.DT.T1, alpha = 1, standardize=TRUE)
 plot(lasso_test.DT.T1.glut, xvar = "lambda")
 #perform k-fold cross-validation to find optimal lambda value
-##grid=10^seq(10,-2, length=100)# We can apply this extra grid function for tuning lambdas
-#This "grid" search begins with null model up-to 10 fold repetitive search for optimal lambda values
-#sample, 10 fold random division of data without specifying the row number may yield different lambda values)
-#X= number of row of the input data e.g. X.glut.DT.T1 (to obtain the constant lambda value during cross validation, as it contains only 23 
+##grid=10^seq(10,-2, length=100)# We can apply this extra grid function for tuning lambdas. This "grid" search begins with null model up-to 10 fold repetitive search for optimal lambda values
+# 10 fold random division of data without specifying the row number may yield different lambda values)
+#X= number of row of the input data e.g. X.glut.DT.T1 (to obtain the constant lambda value during cross validation, as it contains only 23 sample.
 #If the objective X is not working in the nrow function, then use directly X data matrix, like nfolds=nrow(X.glut.DT.T1).
 
 #One can change the cross validation threshold to 3 or 5 folds, but in my analysis 10 folds produced the most optimal lambda.
