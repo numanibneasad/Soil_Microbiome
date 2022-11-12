@@ -22,6 +22,10 @@ require(tidyverse)
 require(Hmisc)
 library(ggplot2)
 library(scales)
+library(corrplot)
+library(psych)
+library("corrplot")
+
 #Bacterial OTU transformation by Hellinger
 
 #Cultivar DT (Bacteria)
@@ -196,15 +200,7 @@ pca.data.point.16S.DT.T3=pca.point.16S.DT.T3[,which(colnames(pca.point.16S.DT.T3
 colnames(pca.data.point.16S.DT.T3)[which(colnames(pca.data.point.16S.DT.T3) %in% c("coord.Dim.1","coord.Dim.2","coord.Dim.3","coord.Dim.4", "coord.Dim.5"))]<- c("bact.DT.T3.axis1", "bact.DT.T3.axis2","bact.DT.T3.axis3","bact.DT.T3.axis4","bact.DT.T3.axis5") 
 
 
-corr.PCA.DT.T3= cor(qual.DT.S3,pca.data.point.16S.DT.T3, use = "pairwise.complete.obs")
-
-library(corrplot)
-library(psych)
-library("corrplot")
-jpeg(file<-"saving_plot1.jpeg")
-colwizards <- colorRampPalette(c("firebrick2", "gray80"))
-corrplot(corr.PCA.DT.T3,  tl.col="black", col = colwizards(2), outline=TRUE, is.corr=FALSE)   
-
+# Correlation  between quality and bacterial PCA
 
 bact.DT.T3.cor <- corr.test(qual.DT.S3,pca.data.point.16S.DT.T3, method = 'spearman')
 
@@ -228,15 +224,7 @@ myfun <- function(bact.DT.T3.cor){
 }
 
 
-myfun(bact.DT.T3.cor) 
-
-
-
-
-ggsave("model.DT.T3.corrplot.tiff", p, height=3.5, width=5, units="in", dpi=300)
-
-
-
+myfun (bact.DT.T3.cor )
 
 #Analysis of significant dimensions
 
@@ -425,7 +413,8 @@ myfun <- function(Fungi.DT.T1.cor){
 }
 
 
-myfun(Fungi.DT.T1.cor) 
+myfun(FUNGI) 
+
 
 
 #PCA run for 24 MAY
@@ -489,8 +478,7 @@ write.table(PCA.axis5.ITS.DT.T3,here("output/tables","PCA.axis5.ITS.DT.T3.txt"),
 
 ################################################################################
 #Corr-plot visualizations
-library(psych)
-library(corrplot)
+
 fungi.DT.T3.cor <- corr.test(qual.DT.S3,pca.data.point.ITS.DT.T3, method = 'spearman')
 
 myfun <- function(fungi.DT.T3.cor){
@@ -710,7 +698,7 @@ p <- myfun(biolog.DT.T1.cor)
 
 
 
-
+library(missMDA)
 
 
 #PCA run FOR T2
@@ -734,7 +722,7 @@ colnames(pca.data.point.biolog.DT.T2)[which(colnames(pca.data.point.biolog.DT.T2
 
 
 res.desc.biolog.DT.T2 <- dimdesc(pca.biolog.DT.T2, axes = c(2,3,4), proba = 0.05)
-PCA.axis2.biolog.DT.T2<-data.frame(res.desc.biolog.DT.T3$Dim.2)
+PCA.axis2.biolog.DT.T2<-data.frame(res.desc.biolog.DT.T2$Dim.2)
 PCA.axis2.biolog.DT.T2<-na.omit(PCA.axis2.biolog.DT.T2)
 
 write.table(PCA.axis2.biolog.DT.T2,here("output/tables","PCA.axis2.biolog.DT.T2.txt"),sep="\t")
@@ -931,7 +919,7 @@ write.table(PCA.axis5.biolog.DT.T7,here("output/tables","PCA.axis5.biolog.DT.T7.
 
 # LASSO regression analysis
 
-# Prepaing data for LASSO regression for T1
+# Preparing data for LASSO regression for T1
 
 reg.lasso.DT.T1<-cbind(pca.data.point.16S.DT.T1,pca.data.point.ITS.DT.T1,pca.data.point.biolog.DT.T1,div.16S.DT.T1,div.ITS.DT.T1,qpcr.T1.DT,qual.DT.S1)
 row.names(reg.lasso.DT.T1)==row.names(qual.DT.S1)
