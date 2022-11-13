@@ -1,5 +1,5 @@
 # Soil_Microbiome (Predictive modeling of wheat grain quality)
-R project and code associated with the manuscript:"Early season soil microbiome best predicts wheat grain quality"
+R project and code associated with the manuscript:"Early season soil microbiome best predicts wheat grain quality
 
-Metadata, OTU abundance table, taxonomic table, alpha diversity indices, CLPP data, Abundance of the nitrogen cycle genes, Fungal: Bacterial ratio, Relative abundance of OTUs in PCA axis files needed for the analyses can be found here:
-https://doi.org/10.5281/zenodo.7293950
+All scripts are sorted in order. So script1 is connected to script2, and scrip2 is connected to script3. Scripts 4 and 5 are linked to script1.
+So, to run script 2 to get the analysis regarding the LASSO model or PCA, first, should run script 1 and then 2.
