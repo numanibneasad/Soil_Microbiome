@@ -659,7 +659,7 @@ PCA.axis1.biolog.DT.T1<-data.frame(res.desc.biolog.DT.T1$Dim.1)
 PCA.axis2.biolog.DT.T1<-data.frame(res.desc.biolog.DT.T1$Dim.2)
 PCA.axis3.biolog.DT.T1<-data.frame(res.desc.biolog.DT.T1$Dim.3)
 PCA.axis4.biolog.DT.T1<-data.frame(res.desc.biolog.DT.T1$Dim.4)
-PCA.axis4.biolog.DT.T1<-data.frame(res.desc.biolog.DT.T1$Dim.5)
+PCA.axis5.biolog.DT.T1<-data.frame(res.desc.biolog.DT.T1$Dim.5)
 
 write.table(PCA.axis1.biolog.DT.T1,here("output/tables","PCA.axis1.biolog.DT.T1.txt"),sep="\t")
 write.table(PCA.axis2.biolog.DT.T1,here("output/tables","PCA.axis2.biolog.DT.T1.txt"),sep="\t")
@@ -4129,7 +4129,7 @@ results.DS.bem.T1 <- best_model.bem.DS.T1$beta %>%
 results.DS.bem.T1.filt<-filter_if(results.DS.bem.T1, is.numeric, all_vars((.) != 0))
 results.DS.bem.T1.filt
 
-write.table(results.DS.bem.T1.filt, "result_labels_bem_DS.T1.txt",sep="\t" )
+write.table(results.DS.bem.T1.filt, here("output/tables","result_labels_bem_DS.T1.txt"),sep="\t" )
 
 plot.bem.DS.T1<-ggplot(predicted.value.bem.DS.T1, aes(x=V2, y=s1)) + 
   geom_point(color="#00000050")+
@@ -4426,31 +4426,6 @@ assess.glmnet(best_model.bem.DS.T2,           #in this case, we are evaluating t
               newx = X.bem.DS.T2,              #in the same data used to fit the model
               newy = Y.bem.DS.T2 )
 
-
-
-
-#lasso.DT.T1=as.matrix(lasso.DT.T1)
-#lasso.df.DT.T1=as.data.frame(lasso.DT.T1)
-#write.table(lasso.df.DT.T1,"lasso.df.protien.txt",sep="\t")
-
-
-model.glut.DS.T2=lm(Gluten~bact.DS.T2.axis4+fun.DS.T2.axis1  ,
-                    data=data.glut.DS.T2)
-
-
-model.protein.DS.T2=lm(Protein.grain~fun.DS.T2.axis4 +biolog.DS.T2.axis1 
-                       ,data=data.prot.DS.T2)
-
-
-
-model.bem.DS.T2=lm(BEM~bact.DS.T2.axis1+biolog.DS.T2.axis5+OTU.richness.fun+ACE.fun +AOA+nirk , data=data.bem.DS.T2)
-
-
-vif(model.protein.DS.T2)
-
-summary(model.glut.DS.T2)
-summary(model.protein.DS.T2)
-summary(model.pmt.DS.T2)
 
 
 
@@ -5069,9 +5044,7 @@ plot.bem.DS.T4<-ggplot(predicted.value.bem.DS.T4, aes(x=V2, y=s1)) +
 plot.bem.DS.T4
 
 
-ggsave("model.DS.T4.bem.tiff", plot.bem.DS.T4, height=3.5, width=4.0, units="in", dpi=600)
-
-
+ggsave(here("output/photo","model.DS.T4.bem.tiff"), plot.bem.DS.T4, height=3.5, width=4.0, units="in", dpi=600)
 
 
 
@@ -5318,7 +5291,7 @@ results.DS.bem.T5.filt
 
 
 # Visualize the predictive plot
-write.table(results.DS.bem.T5.filt,"result.bem.DS.T5.txt", sep="\t" )
+write.table(results.DS.bem.T5.filt,here("output/tables","result.bem.DS.T5.txt"), sep="\t" )
 
 
 
@@ -5515,7 +5488,7 @@ results.DS.prot.T6.filt
 
 
 
-write.table(results.DS.prot.T6.filt, "result_labels_prot_DS.T6.txt",sep="\t" )
+write.table(results.DS.prot.T6.filt, here("output/tables", "result_labels_prot_DS.T6.txt"),sep="\t" )
 
 
 #PMT
@@ -5763,7 +5736,7 @@ results.DS.prot.T7.filt
 
 
 # Visualize the predictive plot
-write.table(results.DS.prot.T7.filt, "result_labels_prot_DS.T7.txt",sep="\t" )
+write.table(results.DS.prot.T7.filt, here("output/tables", "result_labels_prot_DS.T7.txt"),sep="\t" )
 
 
 

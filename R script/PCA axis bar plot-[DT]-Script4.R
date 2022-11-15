@@ -7390,7 +7390,7 @@ top_genus_DT_T3_PCA.Axis2<-taxa_abundance_ITS.DT.pca.axis2%>%
   arrange(-Mean)
 top_genus_DT_T3_PCA.Axis2
 
-write.table(data.frame(top_genus_DT_T3_PCA.Axis2),"top_genus_DT_T3_ITS.Axis2.txt",sep="\t")
+write.table(data.frame(top_genus_DT_T3_PCA.Axis2),here("output/tables","top_genus_DT_T3_ITS.Axis2.txt"),sep="\t")
 
 
 #PCA_DT_axis3

@@ -3303,7 +3303,7 @@ top_genus_DS_T1_PCA.Axis5
 write.table(data.frame(top_genus_DS_T1_PCA.Axis5),file = here("output/tables","top_genus_DS_T1_PCA.Axis5.txt"),sep="\t")
 
 
-PCA.axis.DS.T1=read.table(file=paste("PCA.DS.T1.AXIS.txt"),  header=T, sep="\t") 
+PCA.axis.DS.T1=read.table(file=here("data","PCA.DS.T1.AXIS.txt"),  header=T, sep="\t") 
 
 top10 <- PCA.axis.DS.T1$Genus[1:15]
 df0 <- PCA.axis.DS.T1%>%
@@ -3340,7 +3340,7 @@ StackedBarPlot_16S_axis_genus_rel.DS.T1<-#plot_bar(prune.dat.DS.T1.16S.axis5, "O
 
 StackedBarPlot_16S_axis_genus_rel.DS.T1
 
-ggsave(file = here("photo","model.DS.T1.PCA.axis.tiff"), StackedBarPlot_16S_axis_genus_rel.DS.T1, height=4.5, width=5.0, units="in", dpi=600)
+ggsave(file = here("output/photo","model.DS.T1.PCA.axis.tiff"), StackedBarPlot_16S_axis_genus_rel.DS.T1, height=4.5, width=5.0, units="in", dpi=600)
 
 ################################################################################
 
@@ -6779,7 +6779,7 @@ top_genus_DS_T3_PCA.Axis1<-taxa_abundance_16S.DS.pca.axis1%>%
   arrange(-Mean)
 top_genus_DS_T3_PCA.Axis1
 
-write.table(data.frame(top_genus_DS_T3_PCA.Axis1),"top_genus_DS_T3_PCA.Axis1.txt",sep="\t")
+write.table(data.frame(top_genus_DS_T3_PCA.Axis1),here("output/tables","top_genus_DS_T3_PCA.Axis1.txt"),sep="\t")
 
 
 #PCA_DT_axis2
@@ -6821,7 +6821,7 @@ top_genus_DS_T3_PCA.Axis3<-taxa_abundance_16S.DS.pca.axis3%>%
   arrange(-Mean)
 top_genus_DS_T3_PCA.Axis3
 
-write.table(data.frame(top_genus_DS_T3_PCA.Axis3),"top_genus_DS_T3_PCA.Axis3.txt",sep="\t")
+write.table(data.frame(top_genus_DS_T3_PCA.Axis3),here("output/tables","top_genus_DS_T3_PCA.Axis3.txt"),sep="\t")
 
 
 #PCA_DT_axis4
@@ -12127,7 +12127,7 @@ top_genus_DS_T4_PCA.Axis5
 write.table(data.frame(top_genus_DS_T4_PCA.Axis5),file = here("output/tables","top_genus_DS_T4_PCA.Axis5.txt"),sep="\t")
 
 
-PCA.axis.DS.T4=read.table(file=here("Data","PCA.DS.T4.AXIS.txt"),  header=T, sep="\t") 
+PCA.axis.DS.T4=read.table(file=here("data","PCA.DS.T4.AXIS.txt"),  header=T, sep="\t") 
 
 top10 <- PCA.axis.DS.T4$Genus[1:15]
 df0 <- PCA.axis.DS.T4%>%
@@ -12193,7 +12193,7 @@ top_genus_DS_T4_PCA.Axis1<-taxa_abundance_ITS.DS.pca.axis1%>%
   arrange(-Mean)
 top_genus_DS_T4_PCA.Axis1
 
-write.table(data.frame(top_genus_DS_T4_PCA.Axis1),"top_genus_DS_T4_ITS.Axis1.txt",sep="\t")
+write.table(data.frame(top_genus_DS_T4_PCA.Axis1),here("output/tables","top_genus_DS_T4_ITS.Axis1.txt"),sep="\t")
 
 
 #PCA_DT_axis2
@@ -12235,7 +12235,7 @@ top_genus_DS_T4_PCA.Axis3<-taxa_abundance_ITS.DS.pca.axis3%>%
   arrange(-Mean)
 top_genus_DS_T4_PCA.Axis3
 
-write.table(data.frame(top_genus_DS_T4_PCA.Axis3),"top_genus_DS_T4_ITS.Axis3.txt",sep="\t")
+write.table(data.frame(top_genus_DS_T4_PCA.Axis3),here("output/tables","top_genus_DS_T4_ITS.Axis3.txt"),sep="\t")
 
 
 #PCA_DT_axis4

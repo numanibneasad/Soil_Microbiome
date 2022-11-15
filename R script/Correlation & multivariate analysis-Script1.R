@@ -2174,9 +2174,9 @@ model.full = lm(BEM ~OTU_10365+OTU_1037+OTU_1044+OTU_43710+OTU_10687+OTU_11003+O
 
 step(model.null, scope = list(upper=model.full), direction="both", K=4, data=data.BEM.DT.T6)  
 
-model.BEM.DT.T6 = lm(BEM ~ , data = data.BEM.DT.T6)
+#model.BEM.DT.T6 = lm(BEM ~ , data = data.BEM.DT.T6)
 
-summary(model.BEM.DT.T6)
+#summary(model.BEM.DT.T6)
 
 
 # Gluten for August
