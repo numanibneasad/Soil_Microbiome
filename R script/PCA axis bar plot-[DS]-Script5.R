@@ -3185,66 +3185,42 @@ top_genus_DS_T1_PCA.Axis2
 
 
 #new phyloseq
-library(phyloseq)
+#library(phyloseq)
 
 
-otu_mat = matrix(sample(qual.DS.S1, replace = TRUE), nrow = 24, ncol = 24)
+#otu_mat = matrix(sample(qual.DS.S1, replace = TRUE), nrow = 24, ncol = 24)
 
 
-meta = data.frame(group = sample(LETTERS[1:4], size = 24, replace = TRUE),
-                  row.names = paste0("sample", 1:ncol(otu_mat)),
-                  stringsAsFactors = TRUE)
+#meta = data.frame(group = sample(LETTERS[1:4], size = 24, replace = TRUE),
+               #   row.names = paste0("sample", 1:ncol(otu_mat)),
+     #             stringsAsFactors = TRUE)
+#
+
+#OTU = otu_table(otu.16S.DS.T1, taxa_are_rows = FALSE)
+#META = sample_data(metafile.DS.T1)
+#physeq = phyloseq(OTU, META, taxa.biome.16S)
 
 
-OTU = otu_table(otu.16S.DS.T1, taxa_are_rows = FALSE)
-META = sample_data(metafile.DS.T1)
-physeq = phyloseq(OTU, META, taxa.biome.16S)
 
-
-
-library(microbiome)
-library(ANCOMBC)
+#library(microbiome)
+#library(ANCOMBC)
 
 # Aggregate to family level
-family_data = aggregate_taxa(physeq, "Genus", verbose=FALSE)
+#family_data = aggregate_taxa(physeq, "Genus", verbose=FALSE)
 
-family_data
-
-
-out = ancombc(phyloseq=family_data, formula,
-              p_adj_method = "holm", prv_cut = 0.10, lib_cut = 0,
-              group = "Treatment", struc_zero = TRUE, neg_lb = FALSE,
-              tol = 1e-5, max_iter = 100, conserve = TRUE,
-              alpha = 0.05, global = TRUE)
+#family_data
 
 
 
 
-set.seed(123)
-out = ancom(phyloseq = family_data,  p_adj_method = "hochberg",
-            prv_cut = 0.10, lib_cut = 0, main_var = "Treatment",
-            adj_formula = NULL,
-            rand_formula = NULL, lme_control = NULL,
-                        struc_zero = FALSE, neg_lb = TRUE, alpha = 0.05, n_cl = 2)
-
-res = out$beta_data
-
-
-library("SIAMCAT")
-
-
-
-label <- create.label(meta=metafile, label="Cultivar",
-                      case = "AC Nass", control="Strongfield",
-                      p.lab = 'Treatment', n.lab = 'date')
-
-siamcat <- siamcat(phyloseq=physeq.obj,label=label)
-
-
-
-phyloseq <- physeq(siamcat)
-tax_tab <- tax_table(phyloseq)
-head(tax_tab)
+#set.seed(123)
+#out = ancom(phyloseq = family_data,  p_adj_method = "hochberg",
+#           prv_cut = 0.10, lib_cut = 0, main_var = "Treatment",
+#          adj_formula = NULL,
+#          rand_formula = NULL, lme_control = NULL,
+#                      struc_zero = FALSE, neg_lb = TRUE, alpha = 0.05, n_cl = 2)
+#
+#out$p_data
 
 
 
@@ -3253,14 +3229,6 @@ head(tax_tab)
 
 
 
-sc.obj <- siamcat(feat=feat.crc.zeller,
-                  label=label.crc.zeller,
-                  meta=meta.crc.zeller)
-
-
-sc.obj <- filter.features(siamcat,
-                          filter.method = 'abundance',
-                          cutoff = 0.001)
 
 
 
@@ -6899,7 +6867,7 @@ top_genus_DS_T3_PCA.Axis5
 write.table(data.frame(top_genus_DS_T3_PCA.Axis5),file = here("output/tables","top_genus_DS_T3_PCA.Axis5.txt"),sep="\t")
 
 
-PCA.axis.DS.T3=read.table(file=paste("PCA.DS.T3.AXIS.txt"),  header=T, sep="\t") 
+PCA.axis.DS.T3=read.table(file=here("Data","PCA.DS.T3.AXIS.txt"),  header=T, sep="\t") 
 
 top10 <- PCA.axis.DS.T3$Genus[1:15]
 df0 <- PCA.axis.DS.T3%>%
@@ -12159,7 +12127,7 @@ top_genus_DS_T4_PCA.Axis5
 write.table(data.frame(top_genus_DS_T4_PCA.Axis5),file = here("output/tables","top_genus_DS_T4_PCA.Axis5.txt"),sep="\t")
 
 
-PCA.axis.DS.T4=read.table(file=paste("PCA.DS.T4.AXIS.txt"),  header=T, sep="\t") 
+PCA.axis.DS.T4=read.table(file=here("Data","PCA.DS.T4.AXIS.txt"),  header=T, sep="\t") 
 
 top10 <- PCA.axis.DS.T4$Genus[1:15]
 df0 <- PCA.axis.DS.T4%>%

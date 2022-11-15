@@ -861,14 +861,14 @@ i=1; unlink ("cor.DT.T1-ITS-qual.pearson.txt");
 while (i<=ncol(otu.ITS.DT.T1)) {j=1; while(j<=ncol(qual.DT.S1)) 
 {cor=cor.test(otu.ITS.DT.T1[,i], qual.DT.S1[,j], method="pearson"); p.value=cor$p.value; 
 if(is.na(p.value)){p.value=1}; if(p.value<0.001){cat (colnames(otu.ITS.DT.T1)[i], " \t", 
-colnames(qual.DT.S1)[j], "\t", cor$p.value, "\t", cor$estimate,"\t",as.matrix(tax.ITS.S)[i,],"\n", file=here("output/tables","cor.DT.T1-ITS-qual-pearson.txt"), append=T)};j=j+1} ;i=i+1}
+colnames(qual.DT.S1)[j], "\t", cor$p.value, "\t", cor$estimate,"\t",as.matrix(tax.ITS)[i,],"\n", file=here("output/tables","cor.DT.T1-ITS-qual-pearson.txt"), append=T)};j=j+1} ;i=i+1}
 
 
 i=1; unlink ("cor.DT.T2-ITS-qual.pearson.txt");
 while (i<=ncol(otu.ITS.DT.T2)) {j=1; while(j<=ncol(qual.DT.S2)) 
 {cor=cor.test(otu.ITS.DT.T2[,i], qual.DT.S2[,j], method="pearson"); p.value=cor$p.value; 
 if(is.na(p.value)){p.value=1}; if(p.value<0.001){cat (colnames(otu.ITS.DT.T2)[i], " \t", 
-colnames(qual.DT.S2)[j], "\t", cor$p.value, "\t", cor$estimate,"\t",as.matrix(tax.ITS.S)[i,],"\n", file=here("output/tables","cor.DT.T2-ITS-qual-pearson.txt"), append=T)};j=j+1} ;i=i+1}
+colnames(qual.DT.S2)[j], "\t", cor$p.value, "\t", cor$estimate,"\t",as.matrix(tax.ITS)[i,],"\n", file=here("output/tables","cor.DT.T2-ITS-qual-pearson.txt"), append=T)};j=j+1} ;i=i+1}
 
 
 
@@ -876,7 +876,7 @@ i=1; unlink ("cor.DT.T3-ITS-qual.pearson.txt");
 while (i<=ncol(otu.ITS.DT.T3)) {j=1; while(j<=ncol(qual.DT.S3)) 
 {cor=cor.test(otu.ITS.DT.T3[,i], qual.DT.S3[,j], method="pearson"); p.value=cor$p.value; 
 if(is.na(p.value)){p.value=1}; if(p.value<0.001){cat (colnames(otu.ITS.DT.T3)[i], " \t", 
-colnames(qual.DT.S3)[j], "\t", cor$p.value, "\t", cor$estimate,"\t",as.matrix(tax.ITS.S)[i,],"\n", file=here("output/tables","cor.DT.T3-ITS-qual.pearson.txt"), append=T)};j=j+1} ;i=i+1}
+colnames(qual.DT.S3)[j], "\t", cor$p.value, "\t", cor$estimate,"\t",as.matrix(tax.ITS)[i,],"\n", file=here("output/tables","cor.DT.T3-ITS-qual.pearson.txt"), append=T)};j=j+1} ;i=i+1}
 
 
 
@@ -884,7 +884,7 @@ i=1; unlink ("cor.DT.T4-ITS-qual.pearson.txt");
 while (i<=ncol(otu.ITS.DT.T4)) {j=1; while(j<=ncol(qual.DT.S4)) 
 {cor=cor.test(otu.ITS.DT.T4[,i], qual.DT.S4[,j], method="pearson"); p.value=cor$p.value; 
 if(is.na(p.value)){p.value=1}; if(p.value<0.001){cat (colnames(otu.ITS.DT.T4)[i], " \t", 
-colnames(qual.DT.S4)[j], "\t", cor$p.value, "\t", cor$estimate,"\t",as.matrix(tax.ITS.S)[i,],"\n", file=here("output/tables","cor.DT.T4-ITS-qual.pearson.txt"), append=T)};j=j+1} ;i=i+1}
+colnames(qual.DT.S4)[j], "\t", cor$p.value, "\t", cor$estimate,"\t",as.matrix(tax.ITS)[i,],"\n", file=here("output/tables","cor.DT.T4-ITS-qual.pearson.txt"), append=T)};j=j+1} ;i=i+1}
 
 
 
@@ -893,21 +893,21 @@ i=1; unlink ("cor.DT.T5-ITS-qual.pearson.txt");
 while (i<=ncol(otu.ITS.DT.T5)) {j=1; while(j<=ncol(qual.DT.S5)) 
 {cor=cor.test(otu.ITS.DT.T5[,i], qual.DT.S5[,j], method="pearson"); p.value=cor$p.value; 
 if(is.na(p.value)){p.value=1}; if(p.value<0.001){cat (colnames(otu.ITS.DT.T5)[i], " \t", 
-colnames(qual.DT.S5)[j], "\t", cor$p.value, "\t", cor$estimate,"\t",as.matrix(tax.ITS.S)[i,],"\n", file=here("output/tables","cor.DT.T5-ITS-qual.pearson.txt"), append=T)};j=j+1} ;i=i+1}
+colnames(qual.DT.S5)[j], "\t", cor$p.value, "\t", cor$estimate,"\t",as.matrix(tax.ITS)[i,],"\n", file=here("output/tables","cor.DT.T5-ITS-qual.pearson.txt"), append=T)};j=j+1} ;i=i+1}
 
 
 i=1; unlink ("cor.DT.T6-ITS-qual.pearson.txt");
 while (i<=ncol(otu.ITS.DT.T6)) {j=1; while(j<=ncol(qual.DT.S6)) 
 {cor=cor.test(otu.ITS.DT.T6[,i], qual.DT.S6[,j], method="pearson"); p.value=cor$p.value; 
 if(is.na(p.value)){p.value=1}; if(p.value<0.001){cat (colnames(otu.ITS.DT.T6)[i], " \t", 
-colnames(qual.DT.S6)[j], "\t", cor$p.value, "\t", cor$estimate,"\t",as.matrix(tax.ITS.S)[i,],"\n", file=here("output/tables","cor.DT.T6-ITS-qual.pearson.txt"), append=T)};j=j+1} ;i=i+1}
+colnames(qual.DT.S6)[j], "\t", cor$p.value, "\t", cor$estimate,"\t",as.matrix(tax.ITS)[i,],"\n", file=here("output/tables","cor.DT.T6-ITS-qual.pearson.txt"), append=T)};j=j+1} ;i=i+1}
 
 
 i=1; unlink ("cor.DT.T7-ITS-qual.pearson.txt");
 while (i<=ncol(otu.ITS.DT.T7)) {j=1; while(j<=ncol(qual.DT.S7)) 
 {cor=cor.test(otu.ITS.DT.T7[,i], qual.DT.S7[,j], method="pearson"); p.value=cor$p.value; 
 if(is.na(p.value)){p.value=1}; if(p.value<0.001){cat (colnames(otu.ITS.DT.T7)[i], " \t", 
-colnames(qual.DT.S7)[j], "\t", cor$p.value, "\t", cor$estimate,"\t",as.matrix(tax.ITS.S)[i,],"\n", file=here("output/tables","cor.DT.T7-ITS-qual.pearson.txt"), append=T)};j=j+1} ;i=i+1}
+colnames(qual.DT.S7)[j], "\t", cor$p.value, "\t", cor$estimate,"\t",as.matrix(tax.ITS)[i,],"\n", file=here("output/tables","cor.DT.T7-ITS-qual.pearson.txt"), append=T)};j=j+1} ;i=i+1}
 
 
 
@@ -918,14 +918,14 @@ i=1; unlink ("cor.DS.T1-ITS-qual.pearson.txt");
 while (i<=ncol(otu.ITS.DS.T1)) {j=1; while(j<=ncol(qual.DS.S1)) 
 {cor=cor.test(otu.ITS.DS.T1[,i], qual.DS.S1[,j], method="pearson"); p.value=cor$p.value; 
 if(is.na(p.value)){p.value=1}; if(p.value<0.001){cat (colnames(otu.ITS.DS.T1)[i], " \t", 
-colnames(qual.DS.S1)[j], "\t", cor$p.value, "\t", cor$estimate,"\t",as.matrix(tax.ITS.S)[i,],"\n", file=here("output/tables","cor.DS.T1-ITS-qual-pearson.txt"), append=T)};j=j+1} ;i=i+1}
+colnames(qual.DS.S1)[j], "\t", cor$p.value, "\t", cor$estimate,"\t",as.matrix(tax.ITS)[i,],"\n", file=here("output/tables","cor.DS.T1-ITS-qual-pearson.txt"), append=T)};j=j+1} ;i=i+1}
 
 
 i=1; unlink ("cor.DS.T2-ITS-qual.pearson.txt");
 while (i<=ncol(otu.ITS.DS.T2)) {j=1; while(j<=ncol(qual.DS.S2)) 
 {cor=cor.test(otu.ITS.DS.T2[,i], qual.DS.S2[,j], method="pearson"); p.value=cor$p.value; 
 if(is.na(p.value)){p.value=1}; if(p.value<0.001){cat (colnames(otu.ITS.DS.T2)[i], " \t", 
-colnames(qual.DS.S2)[j], "\t", cor$p.value, "\t", cor$estimate,"\t",as.matrix(tax.ITS.S)[i,],"\n", file=here("output/tables","cor.DS.T2-ITS-qual-pearson.txt"), append=T)};j=j+1} ;i=i+1}
+colnames(qual.DS.S2)[j], "\t", cor$p.value, "\t", cor$estimate,"\t",as.matrix(tax.ITS)[i,],"\n", file=here("output/tables","cor.DS.T2-ITS-qual-pearson.txt"), append=T)};j=j+1} ;i=i+1}
 
 
 
@@ -933,33 +933,33 @@ i=1; unlink ("cor.DS.T3-ITS-qual.pearson.txt");
 while (i<=ncol(otu.ITS.DS.T3)) {j=1; while(j<=ncol(qual.DS.S3)) 
 {cor=cor.test(otu.ITS.DS.T3[,i], qual.DS.S3[,j], method="pearson"); p.value=cor$p.value; 
 if(is.na(p.value)){p.value=1}; if(p.value<0.001){cat (colnames(otu.ITS.DS.T3)[i], " \t", 
-colnames(qual.DS.S3)[j], "\t", cor$p.value, "\t", cor$estimate,"\t",as.matrix(tax.ITS.S)[i,],"\n", file=here("output/tables","cor.DS.T3-ITS-qual.pearson.txt"), append=T)};j=j+1} ;i=i+1}
+colnames(qual.DS.S3)[j], "\t", cor$p.value, "\t", cor$estimate,"\t",as.matrix(tax.ITS)[i,],"\n", file=here("output/tables","cor.DS.T3-ITS-qual.pearson.txt"), append=T)};j=j+1} ;i=i+1}
 
 
 i=1; unlink ("cor.DS.T4-ITS-qual.pearson.txt");
 while (i<=ncol(otu.ITS.DS.T4)) {j=1; while(j<=ncol(qual.DS.S4)) 
 {cor=cor.test(otu.ITS.DS.T4[,i], qual.DS.S4[,j], method="pearson"); p.value=cor$p.value; 
 if(is.na(p.value)){p.value=1}; if(p.value<0.001){cat (colnames(otu.ITS.DS.T4)[i], " \t", 
-colnames(qual.DS.S4)[j], "\t", cor$p.value, "\t", cor$estimate,"\t",as.matrix(tax.ITS.S)[i,],"\n", file=here("output/tables","cor.DS.T4-ITS-qual.pearson.txt"), append=T)};j=j+1} ;i=i+1}
+colnames(qual.DS.S4)[j], "\t", cor$p.value, "\t", cor$estimate,"\t",as.matrix(tax.ITS)[i,],"\n", file=here("output/tables","cor.DS.T4-ITS-qual.pearson.txt"), append=T)};j=j+1} ;i=i+1}
 
 i=1; unlink ("cor.DS.T5-ITS-qual.pearson.txt");
 while (i<=ncol(otu.ITS.DS.T5)) {j=1; while(j<=ncol(qual.DS.S5)) 
 {cor=cor.test(otu.ITS.DS.T5[,i], qual.DS.S5[,j], method="pearson"); p.value=cor$p.value; 
 if(is.na(p.value)){p.value=1}; if(p.value<0.001){cat (colnames(otu.ITS.DS.T5)[i], " \t", 
-colnames(qual.DS.S5)[j], "\t", cor$p.value, "\t", cor$estimate,"\t",as.matrix(tax.ITS.S)[i,],"\n", file=here("output/tables","cor.DS.T5-ITS-qual.pearson.txt"), append=T)};j=j+1} ;i=i+1}
+colnames(qual.DS.S5)[j], "\t", cor$p.value, "\t", cor$estimate,"\t",as.matrix(tax.ITS)[i,],"\n", file=here("output/tables","cor.DS.T5-ITS-qual.pearson.txt"), append=T)};j=j+1} ;i=i+1}
 
 i=1; unlink ("cor.DS.T6-ITS-qual.pearson.txt");
 while (i<=ncol(otu.ITS.DS.T6)) {j=1; while(j<=ncol(qual.DS.S6)) 
 {cor=cor.test(otu.ITS.DS.T6[,i], qual.DS.S6[,j], method="pearson"); p.value=cor$p.value; 
 if(is.na(p.value)){p.value=1}; if(p.value<0.001){cat (colnames(otu.ITS.DS.T6)[i], " \t", 
-colnames(qual.DS.S6)[j], "\t", cor$p.value, "\t", cor$estimate,"\t",as.matrix(tax.ITS.S)[i,],"\n", file=here("output/tables","cor.DS.T6-ITS-qual.pearson.txt"), append=T)};j=j+1} ;i=i+1}
+colnames(qual.DS.S6)[j], "\t", cor$p.value, "\t", cor$estimate,"\t",as.matrix(tax.ITS)[i,],"\n", file=here("output/tables","cor.DS.T6-ITS-qual.pearson.txt"), append=T)};j=j+1} ;i=i+1}
 
 
 i=1; unlink ("cor.DS.T7-ITS-qual.pearson.txt");
 while (i<=ncol(otu.ITS.DS.T7)) {j=1; while(j<=ncol(qual.DS.S7)) 
 {cor=cor.test(otu.ITS.DS.T7[,i], qual.DS.S7[,j], method="pearson"); p.value=cor$p.value; 
 if(is.na(p.value)){p.value=1}; if(p.value<0.001){cat (colnames(otu.ITS.DS.T7)[i], " \t", 
-colnames(qual.DS.S7)[j], "\t", cor$p.value, "\t", cor$estimate,"\t",as.matrix(tax.ITS.S)[i,],"\n", file=here("output/tables","cor.DS.T7-ITS-qual.pearson.txt"), append=T)};j=j+1} ;i=i+1}
+colnames(qual.DS.S7)[j], "\t", cor$p.value, "\t", cor$estimate,"\t",as.matrix(tax.ITS)[i,],"\n", file=here("output/tables","cor.DS.T7-ITS-qual.pearson.txt"), append=T)};j=j+1} ;i=i+1}
 
 
 #Sanity for bio-log data set=>DT
@@ -1249,36 +1249,6 @@ pcoa.16S.DT.T1$eig[2]/sum(pcoa.16S.DT.T1$eig)*100#Axis2
 pcoa.16S.DS.T7$eig[1]/sum(pcoa.16S.DS.T7$eig)*100#Axis1
 pcoa.16S.DS.T7$eig[2]/sum(pcoa.16S.DS.T7$eig)*100#Axis2
 
-
-ord.points.DT.T7= cbind(pcoa.point.DT.T7,metafile.DT.T7)
-colnames(pcoa.point.DT.T7)=c("Axis1", "Axis2", colnames(metafile.DT.T7))
-
-head(ord.points.DT.T7)
-
-
-library(ggplot2)
-library(ggsci)
-
-ordi.T1=ggplot(data=ord.points.DT.T7, aes(x=X1, y=X2, colour=Cultivar, stroke=1.0, shape=factor(Treatment)))+ 
-  geom_point(aes(color = Cultivar), size = 1.5, alpha = 0.8) +
-  geom_vline(xintercept = c(0), color = "grey70", linetype = 2) +
-  geom_hline(yintercept = c(0), color = "grey70", linetype = 2) +  
-  xlab("PCoA axis 1") + 
-  ylab("PCoA axis 2")+
-  ggtitle("A.PCoA of 16S")+
-  theme_classic()+
-  theme(panel.border = element_rect(color = "Black",fill = NA)) +
-  theme(plot.title = element_text(hjust=0.45))+
-  scale_shape_manual(values=c(15,16,17,18), name="Treatment", breaks=c("25","50", "75"))+
-  #scale_color_manual(values=c(16,17,18,19,20,21,22,23,24,25), name="Variety", breaks=c("Warthog", "Scotia","Walton","Harvard","Helios","Dakosta","Touran"))
-  scale_color_npg()+#(name="Variety", breaks=c("Warthog", "Scotia","Walton","Harvard","Helios","Dakosta","Touran"))+ 
-  scale_fill_npg()+
-  coord_fixed(ratio=1)
-#(name="Region", breaks=c("Lac.St-Jean","Monteregie", "Mauricie","Lanaudiere", "Estrie","Centre.du.Qc"))
-
-#facet_wrap(~Amplicon, nrow=1, scale="free") #For a multi-panel figure Row~Col
-
-ordi.T1
 
 
 #Keep only top 10 OTU with strongest correlations for Drought  Sensitive (Output correlation file)
@@ -2082,10 +2052,10 @@ model.full = lm(PMT ~OTU_1043+OTU_10631+OTU_12550+OTU_12560+OTU_11670+OTU_1304+O
 
 step(model.null, scope = list(upper=model.full), direction="both", K=6,  data=data.PMT.DT.T5)  
 
-model.PMT.DT.T5 = lm(PMT ~ , data = data.PMT.DT.T5)
+#model.PMT.DT.T5 = lm(PMT ~ , data = data.PMT.DT.T5)
 
 
-summary(model.PMT.DT.T5)
+#summary(model.PMT.DT.T5)
 
 # PMT for July5
 
@@ -2106,10 +2076,10 @@ model.full = lm(BEM ~OTU_1043+OTU_10631+OTU_12550+OTU_12560+OTU_11670+OTU_1304+O
 
 step(model.null, scope = list(upper=model.full), direction="both", K=4,  data=data.BEM.DT.T5)  
 
-model.BEM.DT.T5 = lm(PMT ~ , data = data.BEM.DT.T5)
+#model.BEM.DT.T5 = lm(BEM ~ , data = data.BEM.DT.T5)
 
 
-summary(model.BEM.DT.T5)
+#summary(model.BEM.DT.T5)
 
 
 
@@ -2135,56 +2105,7 @@ model.gluten.DT.T6 = lm(Gluten ~ OTU_276 + AOA + N.Acetyl.D.Glucosamine +
                            y.Amino.Butyric.Acid + Chao1.fun, data = data.gluten.DT.T6)
 summary(model.gluten.DT.T6)
 
-library(parameters)
-library(effectsize)
-#install.packages("https://cran.r-project.org/src/contrib/Archive/rlang/rlang_0.4.10.tar.gz", repos = NULL, type="source")
-remove.packages(rlang)
-install.packages("rlang")
 
-model_parameters(model.gluten.DT.T6)
-
-b <- coef(model.gluten.DT.T6)
-V <- vcov(model.gluten.DT.T6)
-
-tibble::tibble(
-  diff_estim = b[2] - b[3],
-  diff_SE = sqrt(V[2, 2] + V[3, 3] - 2 * V[2, 3]),
-  t_stat = diff_estim / diff_SE,
-  df = df.residual(model.gluten.DT.T6),
-  p_value = 2 * pt(abs(t_stat), df = df, lower.tail = FALSE)
-  
-  )
-
-
-
-contr <- c(0, 1, -1)
-
-tibble::tibble(
-  diff_estim = b %*% contr,
-  diff_SE = sqrt(contr %*% V %*% contr),
-  t_stat = diff_estim / diff_SE,
-  df = df.residual(model.gluten.DT.T6),
-  p_value = 2 * pt(abs(t_stat), df = df, lower.tail = FALSE)
-
-  )
-
-
-
-library(lavaan)
-
-L <- sem("Gluten ~ OTU_276 + AOA + N.Acetyl.D.Glucosamine + 
-           y.Amino.Butyric.Acid + Chao1.fun",  data = data.gluten.DT.T6)
-
-L0 <- sem("Gluten ~ a*OTU_276 + a*AOA ",  data = data.gluten.DT.T6)
-
-anova(L0, L)
-
-L <- sem("Gluten ~ b1*OTU_276 + b2*AOA 
-         diff := b1 - b2", 
-         data =data.gluten.DT.T6 )
-parameterEstimates(L, output = "text")[7,]
-Gluten ~ OTU_276 + AOA + N.Acetyl.D.Glucosamine + 
-  y.Amino.Butyric.Acid + Chao1.fun
 
 # Gluten for July19
 
@@ -2230,9 +2151,9 @@ model.full = lm(PMT ~OTU_10365+OTU_1037+OTU_1044+OTU_43710+OTU_10687+OTU_11003+O
 
 step(model.null, scope = list(upper=model.full), direction="both", K=6, data=data.PMT.DT.T6)  
 
-model.PMT.DT.T6 = lm(PMT ~ , data = data.PMT.DT.T6)
+#model.PMT.DT.T6 = lm(PMT ~ , data = data.PMT.DT.T6)
 
-summary(model.protein.DT.T6)
+#summary(model.protein.DT.T6)
 
 # BEM for July19
 
@@ -2416,9 +2337,9 @@ model.full = lm(BEM~OTU_10214+OTU_10278+OTU_10378+OTU_11143+OTU_11397+OTU_11475+
 
 step(model.null, scope = list(upper=model.full), direction="both",K=7,  data=data.BEM.DS.T1)  
 
-model.BEM.DS.T1 = lm(BEM~ , data = data.BEM.DS.T1)
+#model.BEM.DS.T1 = lm(BEM~ , data = data.BEM.DS.T1)
 
-summary(model.BEM.DS.T1)
+#summary(model.BEM.DS.T1)
 
 
 

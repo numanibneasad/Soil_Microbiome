@@ -393,9 +393,9 @@ write.table(pca.axis5.ITS.DT.T1,here("output/tables","PCA.axis5.ITS.DT.T1.txt"),
 
 fungi.DT.T1.cor <- corr.test(qual.DT.S1,pca.data.point.ITS.DT.T1, method = 'spearman')
 
-myfun <- function(Fungi.DT.T1.cor){
-  corrplot(fun.DT.T1.cor$r, 
-           p.mat = round(as.matrix(Fungi.DT.T1.cor$p),3),
+myfun <- function(fungi.DT.T1.cor){
+  corrplot(fungi.DT.T1.cor$r, 
+           p.mat = round(as.matrix(fungi.DT.T1.cor$p),3),
            method = 'circle',
            type = 'lower',
            sig.level = c(.001, .01, .05), 
@@ -407,13 +407,13 @@ myfun <- function(Fungi.DT.T1.cor){
            pch.cex = 1.0,
            pch.col="red",
            cl.cex = 1.0)
-  corrplot(Fungi.DT.T1.cor$r,  type="upper", method="number",
+  corrplot(fungi.DT.T1.cor$r,  type="upper", method="number",
            col="coral4",  tl.pos="n", cl.pos="n", number.cex = 0.9, add=T,diag=F)
   recordPlot() # record the latest plot
 }
 
 
-myfun(FUNGI) 
+myfun(fungi.DT.T1.cor) 
 
 
 
@@ -932,7 +932,7 @@ data.glut.DT.T1=reg.lasso.DT.T1[!is.na(reg.lasso.DT.T1$Gluten),]
 #data.glut.DT.T1=data.glut.DT.T1[-c(5,18),]
 
 data.glut.DT.T1=data.glut.DT.T1[-c(5,18),]
-data.glut.DT.T1=data.glut.DT.T1 [,-which(names(data.pmt.DT.T1) %in% c("F.B.ratio"))]
+data.glut.DT.T1=data.glut.DT.T1 [,-which(names(data.glut.DT.T1) %in% c("F.B.ratio"))]
 
 data.prot.DT.T1=reg.lasso.DT.T1[!is.na(reg.lasso.DT.T1$Protein.grain),]
 data.pmt.DT.T1=reg.lasso.DT.T1[!is.na(reg.lasso.DT.T1$PMT),]
@@ -1303,7 +1303,7 @@ summary(model.bem.DT.T1)
 
 # LASSO regression analysis
 
-# Prepaing data for LASSO regression for T2
+# Preparing data for LASSO regression for T2
 
 reg.lasso.DT.T2<-cbind(pca.data.point.16S.DT.T2,pca.data.point.ITS.DT.T2,pca.data.point.biolog.DT.T2,div.16S.DT.T2,div.ITS.DT.T2,qpcr.T2.DT,qual.DT.S2)
 row.names(reg.lasso.DT.T2)==row.names(qual.DT.S2)
@@ -1667,39 +1667,12 @@ MSE
 plot(Y.glut.DT.T3, y_predicted.glut.DT.T3,col="#00000050",pch = 19,main = "Test result for lasso")
 abline(lm(y_predicted.glut.DT.T3~Y.glut.DT.T3),lty = 2,lwd = 2,col = "gray")
 
-dev.off()
 
-# plot lasso model
-lam <- best_model.glut.DT.T3$lambda %>% 
-  as.data.frame() %>%
-  mutate(penalty = best_model.glut.DT.T3$a0 %>% names()) %>%
-  rename(lambda = ".")
 
-results.DT.glut.T3 <- best_model.glut.DT.T3$beta %>% 
-  as.matrix() %>% 
-  as.data.frame() %>%
-  rownames_to_column() %>%
-  gather(penalty, coefficients, -rowname) %>%
-  left_join(lam)
-
-results.DT.glut.T3.filt<-filter_if(results.DT.glut.T3, is.numeric, all_vars((.) != 0))
-results.DT.glut.T3.filt
 
 
 
 # Visualize the predictive plot
-write.table(results.DT.glut.T3.filt,file = here("output/tables","results_labels_glut_DT.T3.txt"),sep="\t" )
-
-
-result_labels_gluten_DT.T3<- results %>%
-  group_by(rowname) %>%
-  filter(lambda == min(lambda)) %>%
-  ungroup() %>%
-  top_n(8, wt = abs(coefficients)) %>%
-  mutate(var = paste0("x", 1:8))
-
-
-# Visualize the predicitve plot
 
 
 eq <- function(x,y) {
@@ -1713,22 +1686,6 @@ eq <- function(x,y) {
     )
   )
 }
-
-
-plot.glut.DT.T3<-ggplot(predicted.value.glut.DT.T3, aes(x=Y.glut.DT.T3, y=s1)) + 
-  geom_point(color="#00000050")+
-  geom_smooth(method=lm, color="lightblue")+
-  #geom_text(x = 25, y = 31, label = eq(predicted.value.glut.DT.T3$Y.glut.DT.T3,predicted.value.glut.DT.T3$s1), parse = TRUE) +
-  stat_regline_equation(label.y = 2, aes(label = ..eq.label..)) +
-  stat_regline_equation(label.y = 1.6, aes(label = ..rr.label..)) +
-  labs(title="A.Gluten (DT-07 June)  ",
-       y=" Predicted gluten conent (%)", x= " Observed gluten conent (%)")+
-  theme_classic() 
-
-plot.glut.DT.T3
-
-ggsave(file=here("output/photo","model.DT.T3.glut.tiff"), plot.glut.DT.T3, height=3.5, width=4.0, units="in", dpi=300)
-
 
 
 
@@ -1927,7 +1884,7 @@ model.glut.DT.T3=lm(Gluten~bact.DT.T3.axis3 +fun.DT.T3.axis2+fun.DT.T3.axis3+fun
 model.protein.DT.T3=lm(Protein.grain~bact.DT.T3.axis3+biolog.DT.T3.axis4+biolog.DT.T3.axis5+ACE+PD.fun+AOA+F.B.ratio
                        ,data=data.prot.DT.T3)
 
-model.pmt.DT.T3=lm(PMT~......., data=data.pmt.DT.T3)
+#model.pmt.DT.T3=lm(PMT~......., data=data.pmt.DT.T3)
 
 model.bem.DT.T3=lm(BEM~bact.DT.T3.axis2+bact.DT.T3.axis3+fun.DT.T3.axis2+fun.DT.T3.axis4+fun.DT.T3.axis5+biolog.DT.T3.axis2+biolog.DT.T3.axis4+Simpson+F.B.ratio   , data=data.bem.DT.T3)
 
@@ -1936,7 +1893,6 @@ vif(model.protein.DT.T3)
 
 summary(model.glut.DT.T3)
 summary(model.protein.DT.T3)
-summary(model.pmt.DT.T3)
 summary(model.bem.DT.T3)
 
 # Preparing data for LASSO regression for T4
@@ -2009,7 +1965,7 @@ plot(cv_model.glut.DT.T4)
 best_model.glut.DT.T4 <- glmnet(X.glut.DT.T4, Y.glut.DT.T4, alpha = 1, lambda = best_lambda.glut.DT.T4, standardize = TRUE)
 coef(best_model.glut.DT.T4)
 
-best_model.glut.DS.T4$beta
+
 #use fitted best model to make predictions
 y_predicted.glut.DT.T4<- predict(best_model.glut.DT.T4, s = best_lambda.glut.DT.T4, newx = X.glut.DT.T4)
 
@@ -2911,7 +2867,7 @@ model.pmt.DT.T7=lm(PMT~nosZ, data=data.pmt.DT.T7)
 model.bem.DT.T7=lm(BEM~bact.DT.T7.axis5+fun.DT.T7.axis2+fun.DT.T7.axis5+biolog.DT.T7.axis3 , data=data.bem.DT.T7)
 
 
-vif(model.protein.DT.T47)
+vif(model.protein.DT.T7)
 
 summary(model.glut.DT.T7)
 summary(model.protein.DT.T7)
@@ -2942,10 +2898,7 @@ colnames(pca.data.point.16S.DS.T1)[which(colnames(pca.data.point.16S.DS.T1) %in%
 #Analysis of significant dimensions
 
 res.desc.16S.DS.T1 <- dimdesc(pca.16S.DS.T1, axes = c(1,2,3,4,5), proba = 0.05)
-# Description of dimension 1
-res.desc.DS.T1$Dim.1
-# Description of dimension 2
-res.desc.DS.T1$Dim.2
+
 # Contributions of variables to PC1
 fviz_contrib(pca.16S.DS.T1, choice = "var", axes = 1, top = 10)
 # Contributions of variables to PC2
@@ -4215,7 +4168,6 @@ model.protein.DS.T1=lm(Protein.grain~bact.DS.T1.axis4+fun.DS.T1.axis1+fun.DS.T1.
 
 model.pmt.DS.T1=lm(PMT~biolog.DS.T1.axis3+OTU.richness.fun+PD.fun+F.B.ratio , data=data.pmt.DS.T1)
 
-model.bem.DS.T1=lm(BEM~, data=data.bem.DS.T1)
 
 
 
@@ -4226,7 +4178,7 @@ vif(model.protein.DS.T1)
 summary(model.glut.DS.T1)
 summary(model.protein.DS.T1)
 summary(model.pmt.DS.T1)
-summary(model.bem.DS.T1)
+
 
 
 
@@ -4392,7 +4344,7 @@ coef(best_model.pmt.DS.T2)
 
 #use fitted best model to make predictions
 y_predicted.pmt.DS.T2<- predict(best_model.pmt.DS.T2, s = best_lambda.pmt.DS.T2, newx = X.pmt.DS.T2)
-predicted.value.bem.DS.T2<-data.frame(cbind(y_predicted.bem.DS.T2, Y.bem.DS.T2))
+
 
 Rsquare <- cor(Y.pmt.DS.T2,y_predicted.pmt.DS.T2)^2
 Rsquare
@@ -4489,7 +4441,7 @@ model.glut.DS.T2=lm(Gluten~bact.DS.T2.axis4+fun.DS.T2.axis1  ,
 model.protein.DS.T2=lm(Protein.grain~fun.DS.T2.axis4 +biolog.DS.T2.axis1 
                        ,data=data.prot.DS.T2)
 
-model.pmt.DS.T2=lm(PMT~ , data=data.pmt.DS.T2)
+
 
 model.bem.DS.T2=lm(BEM~bact.DS.T2.axis1+biolog.DS.T2.axis5+OTU.richness.fun+ACE.fun +AOA+nirk , data=data.bem.DS.T2)
 
@@ -4499,7 +4451,7 @@ vif(model.protein.DS.T2)
 summary(model.glut.DS.T2)
 summary(model.protein.DS.T2)
 summary(model.pmt.DS.T2)
-summary(model.bem.DS.T2)
+
 
 
 # LASSO regression analysis
@@ -4540,7 +4492,7 @@ Y.prot.DS.T3=as.matrix(scale(data.prot.DS.T3$Protein.grain,center = T,scale = T)
 X.pmt.DS.T3=as.matrix(scale(data.explain.pmt.DS.T3,center = T,scale = T))
 Y.pmt.DS.T3=as.matrix(scale(data.pmt.DS.T3$PMT,center = T,scale = T))
 
-X.bem.DS.T3=as.matri(scalex(data.explain.bem.DS.T3,center = T,scale = T))
+X.bem.DS.T3=as.matrix(scale(data.explain.bem.DS.T3,center = T,scale = T))
 Y.bem.DS.T3=as.matrix(scale(data.bem.DS.T3$BEM,center = T,scale = T))
 
 
@@ -5090,7 +5042,7 @@ model.glut.DS.T4=lm(Gluten~bact.DS.T4.axis2 +fun.DS.T4.axis3 +biolog.DS.T4.axis2
 model.protein.DS.T4=lm(Protein.grain~PD+ACE
                        ,data=data.prot.DS.T4)
 
-model.pmt.DS.T4=lm(PMT~, data=data.pmt.DS.T4)
+
 
 model.bem.DS.T4=lm(BEM~Chao1.fun , data=data.bem.DS.T4)
 
@@ -5099,7 +5051,7 @@ vif(model.protein.DT.T3)
 
 summary(model.glut.DS.T4)
 summary(model.protein.DS.T4)
-summary(model.pmt.DS.T4)
+
 summary(model.bem.DS.T4)
 
 
@@ -5919,25 +5871,22 @@ model.protein.DS.T7=lm(Protein.grain~bact.DS.T7.axis1
 
 model.pmt.DS.T7=lm(PMT~ACE+PD.fun , data=data.pmt.DS.T7)
 
-model.bem.DS.T7=lm(BEM~bact.DS.T7.axis5+fun.DS.T7.axis2+fun.DT.T7.axis5+biolog.DT.T7.axis3 , data=data.bem.DS.T7)
 
 
-vif(model.protein.DS.T7)
 
 summary(model.glut.DS.T7)
 summary(model.protein.DS.T7)
 summary(model.pmt.DS.T7)
-summary(model.bem.DS.T7)
+
 
 
 #Model evaluation
 
-library(vip)
+#library(vip)
 
-vip(fit.lasso.glut.DS.T1, num_features = 15, geom = "point")
+#vip(fit.lasso.glut.DS.T1, num_features = 15, geom = "point")
 
-#use fitted best model to make predictions
-y_predicted <- predict(fit.lasso.bem.DS.T1, lasso.bem.DS.T1 , newx = data.bem.DS.T1)
+
 
 
 #################################################################################

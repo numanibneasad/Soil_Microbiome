@@ -9,7 +9,6 @@ library(tidyverse)
 library (ggsci)
 library(ggpubr)
 library(devtools)
-library(rtool)
 library(phyloseq)
 library(data.table)
 library(vegan)
@@ -6778,7 +6777,7 @@ top_genus_DT_T1_PCA.Axis5
 write.table(data.frame(top_genus_DT_T1_PCA.Axis5),file = here("output/tables","top_genus_DT_T1_ITS.Axis5.txt"),sep="\t")
 
 
-PCA.ITS.axis.DT.T1=read.table(file = here("photo","PCA.DT.T1.ITS.AXIS.txt"),  header=T, sep="\t") 
+PCA.ITS.axis.DT.T1=read.table(file = here("Data","PCA.DT.T1.ITS.AXIS.txt"),  header=T, sep="\t") 
 
 top10 <- PCA.ITS.axis.DT.T1$Genus[1:15]
 df0 <- PCA.ITS.axis.DT.T1%>%
