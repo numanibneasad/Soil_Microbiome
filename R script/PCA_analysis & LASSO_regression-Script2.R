@@ -4628,11 +4628,15 @@ lasso.pmt.DS.T3<-coef(fit.lasso.pmt.DS.T3, s=s.best.lasso)
 lasso.pmt.DS.T3
 
 #perform k-fold cross-validation to find optimal lambda value
-cv_model.pmt.DS.T3 <- cv.glmnet(X.pmt.DS.T3, Y.pmt.DS.T3, K=10, nfolds = nrow(X.pmt.DS.T3), alpha = 1, standardize=TRUE, grouped = FALSE)
+
+
+cv_model.pmt.DS.T3 <- cv.glmnet(X.pmt.DS.T3, Y.pmt.DS.T3, K=10,  alpha = 1, standardize=TRUE, grouped = FALSE)
 
 #find optimal lambda value that minimizes test MSE
 best_lambda.pmt.DS.T3 <- cv_model.pmt.DS.T3$lambda.min
 best_lambda.pmt.DS.T3
+# best lambda 0.3267792# To get this value, repeatedly C.V tuning would be required. 
+
 
 #produce plot of test MSE by lambda value
 plot(cv_model.pmt.DS.T3) 

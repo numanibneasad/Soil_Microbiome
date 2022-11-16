@@ -1,5 +1,6 @@
 #Author: Numan Ibne Asad
 #Project:Microbial based predictive modeling
+#Date:2022/10/01
 
 library(microbiome)
 library(dplyr)
@@ -7454,7 +7455,7 @@ top_genus_DT_T3_PCA.Axis5<-taxa_abundance_ITS.DT.pca.axis5%>%
   arrange(-Mean)
 top_genus_DT_T3_PCA.Axis5
 
-write.table(data.frame(top_genus_DT_T3_PCA.Axis5),file = here("data","top_genus_DT_T3_ITS.Axis5.txt"),sep="\t")
+write.table(data.frame(top_genus_DT_T3_PCA.Axis5),file = here("output/tables","top_genus_DT_T3_ITS.Axis5.txt"),sep="\t")
 
 
 PCA.ITS.axis.DT.T3=read.table(file = here("data","PCA.DT.T3.ITS.AXIS.txt"),  header=T, sep="\t") 

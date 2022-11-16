@@ -1,6 +1,7 @@
 #Author: Numan Ibne Asad
 #Project: Microbial based predictive modeling.
-
+#Date:2022/10/01
+#
 OTU.16S.DS.T1.axis1=c("OTU_530",
                       "OTU_128",
                       "OTU_489",
@@ -12318,7 +12319,7 @@ StackedBarPlot_ITS_axis_genus_rel.DS.T4<-#plot_bar(prune.dat.DS.T1.16S.axis5, "O
 
 StackedBarPlot_ITS_axis_genus_rel.DS.T4
 
-ggsave("model.DS.T4.ITS.axis.tiff", StackedBarPlot_ITS_axis_genus_rel.DS.T4, height=4.5, width=5.0, units="in", dpi=600)
+ggsave(here("output/photo","model.DS.T4.ITS.axis.tiff"), StackedBarPlot_ITS_axis_genus_rel.DS.T4, height=4.5, width=5.0, units="in", dpi=600)
 
 
 fig4 <- ggarrange(StackedBarPlot_16S_axis_genus_rel.DS.T4,StackedBarPlot_ITS_axis_genus_rel.DS.T4, labels = c("4A", "4B"))

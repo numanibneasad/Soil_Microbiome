@@ -1,6 +1,6 @@
 #Author: Numan Ibne Asad
 #Project: Microbial based predictive modeling
-
+#Date:2022/10/01
 
 #Correlation between microbiome data vs quality
 
@@ -698,7 +698,7 @@ i=1; unlink ("cor.DT.T6-16S-qual.pearson.txt");
 while (i<=ncol(div.16S.DT.T6)) {j=1; while(j<=ncol(qual.DT.S6)) 
 {cor=cor.test(div.16S.DT.T6[,i], qual.DT.S6[,j], method="spearman"); p.value=cor$p.value; 
 if(is.na(p.value)){p.value=1}; if(p.value<0.05){cat (colnames(div.16S.DT.T6)[i], " \t", 
-colnames(qual.DT.S6)[j], "\t", cor$p.value, "\t", cor$estimate,"\t","\n", file="cor.DT.T6-16S-div-qual.pearson.txt", append=T)};j=j+1} ;i=i+1}
+colnames(qual.DT.S6)[j], "\t", cor$p.value, "\t", cor$estimate,"\t","\n", file=here("output/tables","cor.DT.T6-16S-div-qual.pearson.txt"), append=T)};j=j+1} ;i=i+1}
 
 
 i=1; unlink ("cor.DT.T7-16S-div-qual.pearson.txt");
